@@ -100,7 +100,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# case 'textarea': #>
                         <p class="w-admin-input-wrap">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
-                            <textarea class="widefat" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" >{{ value }}</textarea>
+                            <textarea rows="6"  class="widefat" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" >{{ value }}</textarea>
                         </p>
                     <# break;  #>
 
@@ -114,7 +114,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# case 'editor': #>
                         <p class="w-admin-input-wrap">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
-                            <textarea class="widefat editor" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" >{{ value }}</textarea>
+                            <textarea rows="6" class="widefat editor" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" >{{ value }}</textarea>
                         </p>
                     <# break;  #>
 
