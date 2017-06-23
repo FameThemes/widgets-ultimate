@@ -30,6 +30,12 @@ class OnePress_plus_Widget_Test extends Widget_Ultimate_Widget_Base {
             ),
 
             array(
+                'type' =>'color',
+                'name' => 'color',
+                'label' => esc_html__( 'color', 'widgets-ultimate' ),
+            ),
+
+            array(
                 'type' =>'textarea',
                 'name' => 'textarea',
                 'label' => esc_html__( 'Textarea', 'widgets-ultimate' ),
@@ -39,6 +45,24 @@ class OnePress_plus_Widget_Test extends Widget_Ultimate_Widget_Base {
                 'type' =>'editor',
                 'name' => 'editor',
                 'label' => esc_html__( 'Editor', 'widgets-ultimate' ),
+            ),
+
+            array(
+                'type' =>'image',
+                'name' => 'image',
+                'label' => esc_html__( 'Image', 'widgets-ultimate' ),
+            ),
+
+            array(
+                'type' =>'video',
+                'name' => 'video',
+                'label' => esc_html__( 'Video', 'widgets-ultimate' ),
+            ),
+
+            array(
+                'type' =>'file',
+                'name' => 'file',
+                'label' => esc_html__( 'File', 'widgets-ultimate' ),
             ),
 
             array(
@@ -76,9 +100,33 @@ class OnePress_plus_Widget_Test extends Widget_Ultimate_Widget_Base {
                     ),
 
                     array(
+                        'type' =>'color',
+                        'name' => 'color',
+                        'label' => esc_html__( 'color', 'widgets-ultimate' ),
+                    ),
+
+                    array(
                         'type' =>'textarea',
                         'name' => 'textarea',
                         'label' => esc_html__( 'Textarea', 'widgets-ultimate' ),
+                    ),
+
+                    array(
+                        'type' =>'image',
+                        'name' => 'image',
+                        'label' => esc_html__( 'Image', 'widgets-ultimate' ),
+                    ),
+
+                    array(
+                        'type' =>'video',
+                        'name' => 'video',
+                        'label' => esc_html__( 'Video', 'widgets-ultimate' ),
+                    ),
+
+                    array(
+                        'type' =>'file',
+                        'name' => 'file',
+                        'label' => esc_html__( 'File', 'widgets-ultimate' ),
                     ),
 
                     array(

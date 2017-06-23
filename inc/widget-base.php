@@ -47,6 +47,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
     public function enqueue_admin_scripts() {
         wp_enqueue_media();
         wp_enqueue_editor();
+        wp_enqueue_style( 'wp-color-picker' );
         wp_enqueue_script( 'jquery-ui-sortable' );
         global $Widget_Ultimate;
 
@@ -110,10 +111,34 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                         </p>
                     <# break;  #>
 
-                    <# case 'textarea': #>
+                    <# case 'editor': #>
                         <p class="w-admin-input-wrap">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
-                            <textarea class="widefat" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" >{{ value }}</textarea>
+                            <textarea class="widefat editor" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" >{{ value }}</textarea>
+                        </p>
+                    <# break;  #>
+
+                    <# case 'image': case 'video': case 'file': #>
+                        <div class="w-admin-input-wrap">
+                            <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                            <div class="widget-attachment-input widget-{{ item.type }}-input" data-type="{{ item.type }}">
+                                <input class="widefat attachment-id" type="hidden" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value }}">
+                                <div class="media-item-preview"></div>
+                                <p class="media-widget-buttons">
+                                    <button type="button" class="button remove-media"><?php esc_html_e( 'Remove', 'widgets-ultimate' ); ?></button>
+                                    <button type="button" class="button change-media"><?php esc_html_e( 'Replace', 'widgets-ultimate' ); ?></button>
+                                    <button type="button" class="button select-media"><?php esc_html_e( 'Add', 'widgets-ultimate' ); ?></button>
+                                </p>
+
+                            </div>
+                        </div>
+                    <# break;  #>
+
+                    <# case 'color': #>
+                        <p class="w-admin-input-wrap color-input">
+                            <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                            <input class="widefat color-val" type="hidden" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value }}">
+                            <input class="color-picker widefat" value="{{ value }}">
                         </p>
                     <# break;  #>
 
