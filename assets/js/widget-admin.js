@@ -1,10 +1,14 @@
-(function( $ ) {
+(function( $, wpcustomize ) {
     'use strict';
     String.prototype.replaceAt = function(index, char) {
         var a = this.split("");
         a[index] = char;
         return a.join("");
     };
+
+    if ( ! wpcustomize ) {
+        wpcustomize = null;
+    }
 
     var addParamsURL = function( url, data )
     {
@@ -15,6 +19,27 @@
 
         return url;
     };
+
+    var widgetTemplate = _.memoize(function ( id ) {
+        var compiled,
+        /*
+         * Underscore's default ERB-style templates are incompatible with PHP
+         * when asp_tags is enabled, so WordPress uses Mustache-inspired templating syntax.
+         *
+         * @see trac ticket #22344.
+         */
+            options = {
+                evaluate:    /<#([\s\S]+?)#>/g,
+                interpolate: /\{\{\{([\s\S]+?)\}\}\}/g,
+                escape:      /\{\{([^\}]+?)\}\}(?!\})/g,
+                variable:    'data'
+            };
+
+        return function ( data ) {
+            compiled = compiled || _.template( $( '#tmpl-' + id ).html(),  options );
+            return compiled( data );
+        };
+    });
 
     var $document = $( document );
 
@@ -57,7 +82,7 @@
         $( '.color-input', wrapper).each( function(){
             var w = $( this );
             $('.color-picker', w ).wpColorPicker( {
-                change: function(event, ui){
+                change: function( event, ui ){
                     $( '.color-val', w ).val( ui.color.toString()).trigger( 'change' );
                 }
             } );
@@ -104,7 +129,7 @@
             var prefixName = control.$el.data( 'name') || '';
             control.config = window[ id ];
             prefixName = prefixName.replace( '[__wname__]', '' );
-            control.template = wp.template( 'widget-bundle-fields');
+            control.template = widgetTemplate( 'widget-bundle-fields');
 
             control.savValues = control.$el.data( 'values' );
             if ( typeof control.savValues !== 'object' ) {
@@ -351,62 +376,136 @@
         } );
     }
 
-    $document.ready( function($) {
-        //widgetMedia.open();
-
-        var widgetContainers = $( '.widgets-holder-wrap:not(#available-widgets)' ).find( 'div.widget' );
-        widgetContainers.one( 'click.toggle-widget-expanded', function toggleWidgetExpanded() {
-            var widgetContainer = $( this );
-            initWidget( new jQuery.Event( 'widget-added' ), widgetContainer );
+    var init = function(){
+        var widgetContainers = $('.widgets-holder-wrap:not(#available-widgets)').find('div.widget');
+        widgetContainers.one('click.toggle-widget-expanded', function toggleWidgetExpanded() {
+            var widgetContainer = $(this);
+            initWidget(new jQuery.Event('widget-added'), widgetContainer);
         });
 
         // Open image Media
-        $document.on( 'click', '.widget-image-input .select-media, .widget-image-input .change-media', function( e ){
+        $document.on('click', '.widget-image-input .select-media, .widget-image-input .change-media', function (e) {
             e.preventDefault();
-            widgetMedia.setPreview( $( this).closest( '.widget-image-input' )  );
+            widgetMedia.setPreview($(this).closest('.widget-image-input'));
             widgetMediaImage.open();
-        } );
+        });
 
 
         // Open Video Media
-        $document.on( 'click', '.widget-video-input .select-media, .widget-video-input .change-media', function( e ){
+        $document.on('click', '.widget-video-input .select-media, .widget-video-input .change-media', function (e) {
             e.preventDefault();
-            widgetMedia.setPreview( $( this).closest( '.widget-video-input' )  );
+            widgetMedia.setPreview($(this).closest('.widget-video-input'));
             //widgetMediaImage.open( );
             widgetMediaVideo.open();
-        } );
+        });
 
         // Open File Media
-        $document.on( 'click', '.widget-file-input .select-media, .widget-file-input .change-media', function( e ){
+        $document.on('click', '.widget-file-input .select-media, .widget-file-input .change-media', function (e) {
             e.preventDefault();
-            widgetMedia.setPreview( $( this).closest( '.widget-file-input' )  );
+            widgetMedia.setPreview($(this).closest('.widget-file-input'));
             //widgetMediaImage.open( );
             widgetMediaFile.open();
-        } );
+        });
 
         // Remove
-        $document.on( 'click', '.widget-attachment-input .remove-media', function( e ){
+        $document.on('click', '.widget-attachment-input .remove-media', function (e) {
             e.preventDefault();
-            widgetMedia.remove( $( this).closest( '.widget-attachment-input' )  );
+            widgetMedia.remove($(this).closest('.widget-attachment-input'));
+        });
+
+
+        $document.on('widget-added widget-ultimate-added', initWidget);
+        $document.on('widget-synced widget-updated', initWidget);
+
+        // When siteorigin page builder added widget
+        $document.on('panelsopen', function (e) {
+            var widget = $(e.target);
+            initWidget(e, widget);
+        });
+
+        $document.on('widgets-ultimate-innit widgets-ultimate-group-item-innit', function (e, wrapper) {
+            widgetEditor.init(wrapper);
+            colorPickerInit(wrapper);
+        });
+
+        // Ajax search
+        $document.on( 'keyup', '.object-source .object-ajax-input', function(){
+            var obj = $( this );
+            var p = $( this).closest( '.object-source' );
+            var v = $( this).val();
+            var id = p.data( 'source-id' ) || null;
+            if ( ! id ) {
+                id = 'ws-'+new Date().getTime();
+                p.data( 'source-id', id );
+            }
+            if ( window[ id ] ) {
+                window[ id ].abort();
+            }
+
+            var source = p.data( 'source' ) ||  null;
+
+            if ( ! source ) {
+                return;
+            }
+
+            source.action = 'widget_ultimate_search';
+            source.searc = v;
+            $( '.object-results', p ).html();
+            window[ id ] = $.ajax({
+                data: source,
+                url: WIDGET_US.ajax,
+                dataType: 'json',
+                error: function( res ){
+
+                },
+                success: function( res ){
+                    if ( res.items ) {
+                        $.each( res.items, function( index, item ){
+                            $( '.object-results', p).append( '<li data-id="'+item.id+'">'+item.title+'</li>' );
+                        } );
+                    }
+                }
+            });
+
         } );
 
-    } );
 
-    $document.on( 'widget-added', initWidget );
-    $document.on( 'widget-synced widget-updated', initWidget );
+        $document.on( 'click', '.object-source .object-results li', function( e ){
+            e.preventDefault();
+            var p = $( this).closest( '.object-source' );
+            var id = $( this).data( 'id' );
+            $( '.object-id', p ).val( id).trigger( 'change' );
+            $( '.object-label', p ).text( $( this).text() );
+            $( '.object-ajax-search', p ).hide();
+        });
 
-    // When siteorigin page builder added widget
-    $document.on( 'panelsopen', function( e ) {
-        var widget = $( e.target );
-        initWidget( e, widget );
-    } );
+        $document.on( 'click', '.object-source .object-label', function( e ){
+            e.preventDefault();
+            var p = $( this).closest( '.object-source' );
+            $( '.object-ajax-search', p ).toggle();
+        });
 
-    $document.on( 'widgets-ultimate-innit widgets-ultimate-group-item-innit', function(e, wrapper ){
-        widgetEditor.init( wrapper );
-        colorPickerInit( wrapper );
-    } );
+        $document.on( 'click', '.object-source .object-clear', function( e ){
+            e.preventDefault();
+            var p = $( this).closest( '.object-source' );
+            $( '.object-id', p ).val( '' ).trigger( 'change' );
+            $( '.object-label', p ).text( '' );
+        });
+
+
+    };
+
+    if ( ! wpcustomize ) {
+        $document.ready( function (  ) {
+            init();
+        });
+    } else {
+        wpcustomize.bind( 'ready', function( e, b ) {
+            init();
+        } );
+    }
 
 
 
 
-})( jQuery );
+})( jQuery, wp.customize || null );

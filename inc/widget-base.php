@@ -31,6 +31,8 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
     function admin_scripts(){
         add_action( 'admin_print_scripts', array( $this, 'enqueue_admin_scripts' ) );
         add_action( 'admin_footer', array( $this, 'render_control_template_scripts' ) );
+        add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+        add_action( 'customize_controls_print_footer_scripts', array( $this, 'render_control_template_scripts' ) );
     }
 
     function front_scripts(){
@@ -48,19 +50,27 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         wp_enqueue_media();
         wp_enqueue_editor();
         wp_enqueue_style( 'wp-color-picker' );
+        wp_enqueue_script( 'wp-color-picker' );
         wp_enqueue_script( 'jquery-ui-sortable' );
         global $Widget_Ultimate;
 
         wp_register_script( 'widget-ultimate-widget-admin', $Widget_Ultimate->get('url').'assets/js/widget-admin.js', array( 'jquery'), false, true );
         wp_register_style( 'widget-ultimate-widget-admin', $Widget_Ultimate->get('url').'assets/css/widget-admin.css' );
         if ( defined( 'ELEMENTOR_VERSION' ) ) {
-            wp_enqueue_style('wp-dashicons', site_url('/') . 'wp-includes/css/dashicons.css');
+            $this->plugin = Elementor\Plugin::instance();
+            if ( !empty( $this->plugin->preview ) && method_exists( $this->plugin->preview, 'is_preview_mode' ) && $this->plugin->preview->is_preview_mode() ) {
+                wp_enqueue_style('wp-dashicons', site_url('/') . 'wp-includes/css/dashicons.css');
+            }
+
         }
         wp_enqueue_script( 'widget-ultimate-widget-admin' );
         wp_enqueue_style( 'widget-ultimate-widget-admin' );
 
         // Widget settings
         wp_localize_script( 'widget-ultimate-widget-admin' , get_class( $this ), $this->get_configs() );
+        wp_localize_script( 'widget-ultimate-widget-admin' , 'WIDGET_US', array(
+            'ajax' => admin_url( 'admin-ajax.php' )
+        ) );
 
     }
 
@@ -71,9 +81,14 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
      * @access public
      */
     public function render_control_template_scripts() {
+
+        wp_dropdown_pages();
         ?>
         <script type="text/html" id="tmpl-widget-bundle-fields">
-            <# var elementIdPrefix = 'el' + String( Math.random() ).replace( /\D/g, '' ) + '-' #>
+            <#
+                var elementIdPrefix = 'el' + String( Math.random() ).replace( /\D/g, '' ) + '-'
+                var source;
+            #>
             <# _.each( data.fields, function( item, key ){  #>
                 <#
                     var name = data.namePrefix, value = '';
@@ -118,6 +133,22 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                         </p>
                     <# break;  #>
 
+                    <# case 'source': source = JSON.stringify( item.source );  #>
+                        <div class="w-admin-input-wrap object-source"  data-source="{{ source }}">
+                            <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                            <div class="object-label-w">
+                                <div class="object-label"></div>
+                                <span class="object-clear"><span class="dashicons dashicons-no-alt"></span></span>
+                            </div>
+                            <div class="object-ajax-search">
+                                <input class="widefat object-ajax-input" type="text" placeholder="<?php esc_attr_e( 'Type keyword...', 'widgets-ultimate' ); ?>" id="{{ elementIdPrefix }}-{{ item.name }}">
+                                <input class="object-id" type="hidden" name="{{ name }}"  value="{{ value }}">
+                                <ul class="object-results">
+                                </ul>
+                            </div>
+                        </div>
+                    <# break;  #>
+
                     <# case 'image': case 'video': case 'file': #>
                         <div class="w-admin-input-wrap">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
@@ -159,7 +190,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                 <# } // end swicth #>
             <# }); // end each #>
         </script>
-        <script type="text/html" id="tmpl-">
+        <script type="text/html" id="tmpl-widget-group-item">
             <div class="group-item">
                 <div class="group-item-header">
                     <div class="group-item-title"><?php esc_html_e( 'Title here', 'widgets-ultimate' ); ?></div>
@@ -231,6 +262,15 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                         $field['options'] = array();
                     }
                     break;
+                case 'source':
+                    if ( ! isset( $field['source'] ) || ! is_array( $field['source'] ) ) {
+                        $field['source'] = array();
+                    }
+                    $field['source'] = wp_parse_args( $field['source'], array(
+                        'post_type' => '', // or any post type
+                        'tax'       => '', // or any tax name
+                    ) );
+                    break;
                 case 'group':
                     if ( ! isset( $field['fields'] ) || ! is_array( $field['fields'] ) ) {
                         $field['fields'] = array();
@@ -270,7 +310,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
             <script type="text/javascript">
                 ( function($) {
                     // Init once admin scripts have been loaded
-                    $( document).trigger( 'widget-added', [ $( '#<?php echo $form_id; ?>' ) ] );
+                    $( document).trigger( 'widget-ultimate-added', [ $( '#<?php echo $form_id; ?>' ) ] );
                 } )( jQuery );
             </script>
         </div>
