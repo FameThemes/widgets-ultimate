@@ -119,6 +119,25 @@ class OnePress_plus_Widget_Test extends Widget_Ultimate_Widget_Base {
                     ),
 
                     array(
+                        'type' =>'source',
+                        'name' => 'source',
+                        'label' => esc_html__( 'Source Category', 'widgets-ultimate' ),
+                        'source' => array(
+                            //'post_type' => 'page', // or any post type
+                            'tax'       => 'category', // or any tax name
+                        )
+                    ),
+
+                    array(
+                        'type' =>'source',
+                        'name' => 'source_post',
+                        'label' => esc_html__( 'Source Post', 'widgets-ultimate' ),
+                        'source' => array(
+                            'post_type' => 'post', // or any post type
+                        )
+                    ),
+
+                    array(
                         'type' =>'color',
                         'name' => 'color',
                         'label' => esc_html__( 'color', 'widgets-ultimate' ),

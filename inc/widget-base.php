@@ -6,9 +6,10 @@
 class Widget_Ultimate_Widget_Base extends WP_Widget
 {
 
-    private $config = array(
+    private $config = array();
 
-    );
+    private $fields = null;
+
 
     public function __construct($id_base = '', $name = '', $widget_options = array(), $control_options = array())
     {
@@ -19,7 +20,9 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         );
         parent::__construct($id_base, $name, $widget_options, $control_options);
 
-       $this->admin_scripts();
+        $this->fields = $this->get_configs();
+
+        $this->admin_scripts();
 
         if ( defined( 'ELEMENTOR_VERSION' ) ) {
             add_action('elementor/editor/before_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
@@ -65,6 +68,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         }
         wp_enqueue_script( 'widget-ultimate-widget-admin' );
         wp_enqueue_style( 'widget-ultimate-widget-admin' );
+
 
         // Widget settings
         wp_localize_script( 'widget-ultimate-widget-admin' , get_class( $this ), $this->get_configs() );
@@ -133,18 +137,17 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                         </p>
                     <# break;  #>
 
-                    <# case 'source': source = JSON.stringify( item.source );  #>
+                    <# case 'source': source = JSON.stringify( item.source ); if( ! value ) { value = {}; }   #>
                         <div class="w-admin-input-wrap object-source"  data-source="{{ source }}">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <div class="object-label-w">
-                                <div class="object-label"></div>
+                                <div class="object-label">{{ value.name }}</div>
                                 <span class="object-clear"><span class="dashicons dashicons-no-alt"></span></span>
                             </div>
                             <div class="object-ajax-search">
                                 <input class="widefat object-ajax-input" type="text" placeholder="<?php esc_attr_e( 'Type keyword...', 'widgets-ultimate' ); ?>" id="{{ elementIdPrefix }}-{{ item.name }}">
-                                <input class="object-id" type="hidden" name="{{ name }}"  value="{{ value }}">
-                                <ul class="object-results">
-                                </ul>
+                                <input class="object-id" type="hidden" name="{{ name }}"  value="{{ value.id }}">
+                                <ul class="object-results"></ul>
                             </div>
                         </div>
                     <# break;  #>
@@ -294,16 +297,65 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
 
     function get_configs()
     {
-        return $this->setup_fields( $this->config() );
 
+        if (  $this->fields ) {
+            return $this->fields;
+        }
+
+        $this->fields = $this->setup_fields( $this->config() );
+        return $this->fields;
     }
 
+    function setup_values( $values = array(), $fields = array() ){
+        if ( ! is_array( $values ) ) {
+            return $values;
+        }
+
+        foreach ( $values as $key => $value ) {
+            if ( isset( $fields[ $key ] ) ) {
+                switch ( $fields[ $key ]['type']  ) {
+                    case 'source':
+                        if ( $fields[ $key ]['source']['tax'] != '' ) {
+                            $t = get_term( $value, $fields[ $key ]['source']['tax'], ARRAY_A );
+                            if ( ! is_wp_error( $t ) && ! empty( $t ) ) {
+                                $values[ $key ] = $t;
+                                $values[ $key ]['id']   = $t['term_id'];
+                                $values[ $key ]['name'] = $t['name'];
+                            } else {
+                                $values[ $key ] = null;
+                            }
+                        } else {
+                            $p = get_post( $value, ARRAY_A );
+                            if ( $p && get_post_type( $p ) == $fields[ $key ]['source']['post_type'] ) {
+                                $values[ $key ] = $p;
+                                $values[ $key ]['id'] = $p['ID'];
+                                $values[ $key ]['name'] = $p['post_title'];
+                            } else {
+                                $values[ $key ] = null;
+                            }
+                        }
+                        break;
+
+                    case 'group':
+                        foreach ( $value as $_k => $_v ) {
+                            $values[ $key ][ $_k ] = $this->setup_values( $value[ $_k ], $fields[ $key ]['fields'] );
+                        }
+                        break;
+                }
+
+            }
+        }
+
+        return $values;
+    }
 
 
     public function form( $instance )
     {
 
         $form_id = 'wu_widget_form_'.md5( uniqid( rand(), true ) );
+        $instance = $this->setup_values( $instance, $this->get_configs() );
+        //var_dump( $instance );
         ?>
         <div id="<?php echo esc_attr( $form_id ); ?>" class="widget-ultimate-fields">
             <div class="bundle-widget-fields" data-values="<?php echo esc_attr( json_encode( $instance ) ); ?>" data-name="<?php echo $this->get_field_name( '__wname__' ); ?>" data-widget="<?php echo esc_attr( get_class( $this ) ); ?>"></div>
