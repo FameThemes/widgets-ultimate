@@ -11,6 +11,8 @@ class OnePress_plus_Widget_Test extends Widget_Ultimate_Widget_Base {
             'width' => 500,
             'height' => 350,
         );
+
+        //$control_ops = null;
         parent::__construct(
             'onepess_widget_test',
             esc_html__( 'TEST: Widget', 'widgets-ultimate' ),
@@ -239,6 +241,7 @@ class OnePress_plus_Widget_Test extends Widget_Ultimate_Widget_Base {
         echo $args['before_widget'];
         $title = apply_filters( 'widget_title', $title );
 
+        echo rand( );
 
         echo $args['after_widget'];
     }

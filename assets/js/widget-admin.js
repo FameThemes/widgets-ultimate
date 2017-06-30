@@ -237,6 +237,16 @@
             }
 
             $document.trigger( 'widgets-ultimate-innit', [ control.$el ] );
+
+            control.$el.on( 'change keyup', 'input:not(.wu_input_base), select, textarea', function(){
+                $( '.wu_input_base', control.$el).val( new Date().getTime()).trigger( 'change' );
+                //var widget_inside = $( this).closest( '.widget-inside' );
+                //if ( widget_inside ) {
+                    //$( '.widget-control-save', widget_inside).click();
+                //}
+            } );
+
+
         } // end initialize
 
     });

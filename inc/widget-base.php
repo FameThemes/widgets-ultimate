@@ -388,10 +388,12 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
 
         $form_id = 'wu_widget_form_'.md5( uniqid( rand(), true ) );
         $instance = $this->setup_values( $instance, $this->get_configs() );
-        //var_dump( $instance );
         ?>
         <div id="<?php echo esc_attr( $form_id ); ?>" class="widget-ultimate-fields">
-            <div class="bundle-widget-fields" data-values="<?php echo esc_attr( json_encode( $instance ) ); ?>" data-name="<?php echo $this->get_field_name( '__wname__' ); ?>" data-widget="<?php echo esc_attr( get_class( $this ) ); ?>"></div>
+
+            <div class="bundle-widget-fields" data-values="<?php echo esc_attr( json_encode( $instance ) ); ?>" data-name="<?php echo $this->get_field_name( '__wname__' ); ?>" data-widget="<?php echo esc_attr( get_class( $this ) ); ?>">
+                <input type="hidden" class="wu_input_base" name="<?php echo $this->get_field_name( 'wu_base' ); ?>">
+            </div>
             <script type="text/javascript">
                 ( function($) {
                     // Init once admin scripts have been loaded
