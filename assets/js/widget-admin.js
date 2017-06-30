@@ -428,6 +428,15 @@
             colorPickerInit(wrapper);
         });
 
+        var insertSourceToList = function(res, p ){
+            $( '.object-results', p).html( '' );
+            if ( res.items ) {
+                $.each( res.items, function( index, item ){
+                    $( '.object-results', p).append( '<li data-id="'+item.id+'">'+item.title+'</li>' );
+                } );
+            }
+        };
+
         // Ajax search
         $document.on( 'keyup', '.object-source .object-ajax-input', function(){
             var obj = $( this );
@@ -448,8 +457,10 @@
                 return;
             }
 
+            p.data( 'source-loaded', false );
+
             source.action = 'widget_ultimate_search';
-            source.searc = v;
+            source.search = v;
             $( '.object-results', p ).html();
             window[ id ] = $.ajax({
                 data: source,
@@ -459,15 +470,57 @@
 
                 },
                 success: function( res ){
-                    if ( res.items ) {
-                        $.each( res.items, function( index, item ){
-                            $( '.object-results', p).append( '<li data-id="'+item.id+'">'+item.title+'</li>' );
-                        } );
-                    }
+                    insertSourceToList( res, p );
                 }
             });
 
         } );
+
+        var loadSourceDataOnece = function( p ){
+           if ( p.data( 'source-loaded' ) ) {
+                return;
+           } else {
+               var id = p.data( 'source-id' ) || null;
+               if ( ! id ) {
+                   id = 'ws-'+new Date().getTime();
+                   p.data( 'source-id', id );
+               }
+
+               p.data( 'source-loaded', true );
+               $( '.object-ajax-input', p).val( '' );
+
+               var source = p.data( 'source' ) ||  null;
+
+               if ( ! source ) {
+                   return;
+               }
+               var key = '_data_source_pt_'+source.post_type+'tax_'+source.tax;
+               if ( window[ id ] ) {
+                   window[ 'ajax'+key ].abort();
+               }
+
+               if ( window[ key ] ) {
+                   insertSourceToList( window[ key ], p );
+               } else {
+                   source.action = 'widget_ultimate_search';
+                   source.search = '';
+                   $( '.object-results', p ).html();
+                   window[ 'ajax'+key ] = $.ajax({
+                       data: source,
+                       url: WIDGET_US.ajax,
+                       dataType: 'json',
+                       error: function( res ){
+
+                       },
+                       success: function( res ){
+                           window[ key ] = res;
+                           insertSourceToList( res, p );
+                       }
+                   });
+               }
+
+            }
+        };
 
 
         $document.on( 'click', '.object-source .object-results li', function( e ){
@@ -483,6 +536,7 @@
             e.preventDefault();
             var p = $( this).closest( '.object-source' );
             $( '.object-ajax-search', p ).toggle();
+            loadSourceDataOnece( p );
         });
 
         $document.on( 'click', '.object-source .object-clear', function( e ){

@@ -106,40 +106,56 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     value = data.values[ key ];
                 #>
                 <# switch( item.type ){ case 'select':  #>
-                    <p class="w-admin-input-wrap">
+                    <div class="w-admin-input-wrap">
                         <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                        <# if ( item.desc  ){  #>
+                            <div class="item-desc">{{{ item.desc }}}</div>
+                        <# } #>
                         <select id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}">
                             <# _.each( item.options, function( v, k ){  #>
                                 <option <# if ( k == value ) { #>selected="selected"<# } #> value="{{ k }}">{{ v }}</option>
                             <# }); // end each #>
                         </select>
-                    </p>
+                    </div>
                     <# break;  #>
 
                     <# case 'textarea': #>
-                        <p class="w-admin-input-wrap">
+                        <div class="w-admin-input-wrap">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                            <# if ( item.desc  ){  #>
+                                <div class="item-desc">{{{ item.desc }}}</div>
+                            <# } #>
                             <textarea rows="6"  class="widefat" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" >{{ value }}</textarea>
-                        </p>
+                        </div>
                     <# break;  #>
 
                     <# case 'checkbox': #>
-                        <p class="w-admin-input-wrap">
+                        <div class="w-admin-input-wrap">
                             <input id="{{ elementIdPrefix }}-{{ item.name }}" <# if ( value == "on" ) { #>checked="checked"<# } #> name="{{ name }}" type="checkbox" value="on">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
-                        </p>
+
+                            <# if ( item.desc  ){  #>
+                                <div class="item-desc">{{{ item.desc }}}</div>
+                            <# } #>
+                        </div>
                     <# break;  #>
 
                     <# case 'editor': #>
-                        <p class="w-admin-input-wrap">
+                        <div class="w-admin-input-wrap">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                            <# if ( item.desc  ){  #>
+                                <div class="item-desc">{{{ item.desc }}}</div>
+                            <# } #>
                             <textarea rows="6" class="widefat editor" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" >{{ value }}</textarea>
-                        </p>
+                        </div>
                     <# break;  #>
 
                     <# case 'source': source = JSON.stringify( item.source ); if( ! value ) { value = {}; }   #>
-                        <div class="w-admin-input-wrap object-source"  data-source="{{ source }}">
+                        <div class="w-admin-input-wrap object-source "  data-source="{{ source }}">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                            <# if ( item.desc  ){  #>
+                                <div class="item-desc">{{{ item.desc }}}</div>
+                            <# } #>
                             <div class="object-label-w">
                                 <div class="object-label">{{ value.name }}</div>
                                 <span class="object-clear"><span class="dashicons dashicons-no-alt"></span></span>
@@ -155,6 +171,9 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# case 'image': case 'video': case 'file': #>
                         <div class="w-admin-input-wrap">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                            <# if ( item.desc  ){  #>
+                                <div class="item-desc">{{{ item.desc }}}</div>
+                            <# } #>
                             <div class="widget-attachment-input widget-{{ item.type }}-input" data-type="{{ item.type }}">
                                 <input class="widefat attachment-id" type="hidden" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value }}">
                                 <div class="media-item-preview"></div>
@@ -169,25 +188,39 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'color': #>
-                        <p class="w-admin-input-wrap color-input">
+                        <div class="w-admin-input-wrap">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
-                            <input class="widefat color-val" type="hidden" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value }}">
-                            <input class="color-picker widefat" value="{{ value }}">
-                        </p>
+                            <# if ( item.desc  ){  #>
+                                <div class="item-desc">{{{ item.desc }}}</div>
+                            <# } #>
+                            <div class="color-input">
+                                <input class="widefat color-val" type="hidden" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value }}">
+                                <input class="color-picker widefat" value="{{ value }}">
+                            </div>
+                        </div>
                     <# break;  #>
 
                     <# case 'group': #>
                         <div class="w-admin-input-wrap bundle-groups" data-name="{{ name }}" data-id="{{ item.name }}">
+                            <# if ( item.label  ){  #>
+                            <label for="group-label">{{{ item.label }}}</label>
+                            <# } #>
+                            <# if ( item.desc  ){  #>
+                                <div class="item-desc">{{{ item.desc }}}</div>
+                            <# } #>
                             <div class="list-groups"></div>
                             <a href="#" class="new-item"><?php esc_html_e( 'Add item', 'widgets-ultimate' ); ?></a>
                         </div>
                     <# break;  #>
 
                     <# default:  #>
-                        <p class="w-admin-input-wrap">
+                        <div class="w-admin-input-wrap">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                            <# if ( item.desc  ){  #>
+                                <div class="item-desc">{{{ item.desc }}}</div>
+                            <# } #>
                             <input class="widefat" type="text" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value }}">
-                        </p>
+                        </div>
                     <# break;  #>
 
                 <# } // end swicth #>
