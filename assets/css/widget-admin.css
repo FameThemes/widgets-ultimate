@@ -126,6 +126,10 @@
     margin: 0px;
     cursor: pointer;
 }
+.object-ajax-search ul li:last-child {
+   border-bottom: 0px none;
+}
+
 .object-ajax-search ul li:hover {
     background: #ededed;
 }
