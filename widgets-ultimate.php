@@ -24,6 +24,10 @@ final class Widget_Ultimate {
         add_action( 'plugins_loaded', array( $this, 'includes' ) );
         add_action( 'wp', array( $this, 'scripts_init' ) );
         add_action( 'wp_ajax_widget_ultimate_search', array( $this, 'ajax_search' ) );
+
+        add_action( 'wp_ajax_widget_ultimate_icons', array( $this, 'ajax_icons' ) );
+
+
     }
 
     function scripts_init(){
@@ -47,9 +51,28 @@ final class Widget_Ultimate {
         return null;
     }
 
+    function register_widgets(){
+        register_widget( 'Widget_Ultimate_Test' );
+        register_widget( 'Widget_Ultimate_Features' );
+    }
+
+
     function includes(){
+        require_once $this->path.'inc/class-font-icons.php';
         require_once $this->path.'inc/widget-base.php';
         require_once $this->path.'inc/class-widget-test.php';
+        require_once $this->path.'inc/class-widget-features.php';
+
+        add_action( 'widgets_init', array( $this, 'register_widgets' ) );
+    }
+
+
+    function ajax_icons(){
+        if ( ! class_exists( 'Widget_Ultimate_Font_Icons' ) ) {
+            require_once $this->path.'inc/class-font-icons.php';
+        }
+        global $Widget_Ultimate_Font_Icons;
+        $Widget_Ultimate_Font_Icons->ajax();
     }
 
     function ajax_search(){

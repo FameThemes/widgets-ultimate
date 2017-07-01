@@ -59,6 +59,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
 
         wp_register_script( 'widget-ultimate-widget-admin', $Widget_Ultimate->get('url').'assets/js/widget-admin.js', array( 'jquery'), false, true );
         wp_register_style( 'widget-ultimate-widget-admin', $Widget_Ultimate->get('url').'assets/css/widget-admin.css' );
+        wp_register_style( 'font-awesome', $Widget_Ultimate->get('url').'assets/font-awesome/css/font-awesome.css' );
         if ( defined( 'ELEMENTOR_VERSION' ) ) {
             $this->plugin = Elementor\Plugin::instance();
             if ( !empty( $this->plugin->preview ) && method_exists( $this->plugin->preview, 'is_preview_mode' ) && $this->plugin->preview->is_preview_mode() ) {
@@ -68,12 +69,14 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         }
         wp_enqueue_script( 'widget-ultimate-widget-admin' );
         wp_enqueue_style( 'widget-ultimate-widget-admin' );
-
+        wp_enqueue_style( 'font-awesome' );
 
         // Widget settings
         wp_localize_script( 'widget-ultimate-widget-admin' , get_class( $this ), $this->get_configs() );
         wp_localize_script( 'widget-ultimate-widget-admin' , 'WIDGET_US', array(
-            'ajax' => admin_url( 'admin-ajax.php' )
+            'ajax' => admin_url( 'admin-ajax.php' ),
+            'group_item_title' => esc_html__( 'Untitled', 'widgets-ultimate' ),
+            'remove' => esc_html__( 'Remove', 'widgets-ultimate' ),
         ) );
 
     }
@@ -85,8 +88,10 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
      * @access public
      */
     public function render_control_template_scripts() {
-
-        wp_dropdown_pages();
+        if ( isset( $GLOBALS['render_control_template_scripts_loaded'] ) ) {
+            return;
+        }
+        $GLOBALS['render_control_template_scripts_loaded'] = 1;
         ?>
         <script type="text/html" id="tmpl-widget-bundle-fields">
             <#
@@ -157,7 +162,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                                 <div class="item-desc">{{{ item.desc }}}</div>
                             <# } #>
                             <div class="object-label-w">
-                                <div class="object-label">{{ value.name }}</div>
+                                <input class="widefat object-label" readonly value="{{ value.name }}">
                                 <span class="object-clear"><span class="dashicons dashicons-no-alt"></span></span>
                             </div>
                             <div class="object-ajax-search">
@@ -200,6 +205,20 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                         </div>
                     <# break;  #>
 
+                    <# case 'icon': #>
+                        <div class="w-admin-input-wrap object-icon" >
+                            <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                            <# if ( item.desc  ){  #>
+                                <div class="item-desc">{{{ item.desc }}}</div>
+                            <# } #>
+                            <div class="object-label-w object-icon-picker">
+                                <div class="icon-preview"><i class="{{ value }}"></i></div>
+                                <input class="widefat object-label" name="{{ name }}" value="{{ value }}" readonly>
+                                <span class="object-clear"><span class="dashicons dashicons-no-alt"></span></span>
+                            </div>
+                        </div>
+                    <# break;  #>
+
                     <# case 'group': #>
                         <div class="w-admin-input-wrap bundle-groups" data-name="{{ name }}" data-id="{{ item.name }}">
                             <# if ( item.label  ){  #>
@@ -212,14 +231,14 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                             <a href="#" class="new-item"><?php esc_html_e( 'Add item', 'widgets-ultimate' ); ?></a>
                         </div>
                     <# break;  #>
-
+                    <?php do_action( 'widget-ultimate-more-fields' ); ?>
                     <# default:  #>
                         <div class="w-admin-input-wrap">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
                             <# } #>
-                            <input class="widefat" type="text" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value }}">
+                            <input class="widefat wu-text fid-{{ item.name }}" type="text" data-id="{{ item.name }}" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value }}">
                         </div>
                     <# break;  #>
 
@@ -237,6 +256,55 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                 </div>
             </div>';
         </script>
+
+
+        <div tabindex="0" id="widgets-ultimate-icons-picker">
+            <div class="media-modal wp-core-ui">
+                <button type="button" class="media-modal-close"><span class="media-modal-icon"><span class="screen-reader-text">Close media panel</span></span>
+                </button>
+                <div class="media-modal-content">
+                    <div class="media-frame mode-select wp-core-ui hide-menu">
+
+                        <div class="media-frame-title">
+                            <h1><?php esc_html_e( 'Icons', 'widgets-ultimate' ); ?><span class="dashicons dashicons-arrow-down"></span></h1>
+                        </div>
+
+                        <div class="media-frame-router">
+                            <div id="icons-picker-media-router" class="media-router">
+
+                            </div>
+                        </div>
+
+                        <div class="media-frame-content">
+                            <div class="attachments-browser">
+
+                                <div class="media-toolbar">
+                                    <div class="media-toolbar-secondary">
+                                        <input placeholder="<?php esc_attr_e( 'Search-icon', 'widgets-ultimate' ); ?>" id="icons-search-input" class="search" type="search">
+                                    </div>
+                                    <div class="media-toolbar-primary search-form">
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="media-frame-toolbar">
+                            <div class="media-toolbar">
+                                <div class="media-toolbar-secondary"></div>
+                                <div class="media-toolbar-primary search-form">
+                                    <button type="button" class="button media-button button-primary button-large media-button-select" disabled="disabled">Select</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="media-modal-backdrop"></div>
+        </div>
+
         <?php
     }
 
@@ -312,7 +380,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                         $field['fields'] = array();
                     }
 
-                    if ( ! isset( $field['title_id'] ) || ! is_array( $field['title_id'] ) ) {
+                    if ( ! isset( $field['title_id'] ) ) {
                         $field['title_id'] = '';
                     }
 

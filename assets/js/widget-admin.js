@@ -168,17 +168,32 @@
                             var itemName = name + '['+index+']';
 
                             var fieldsHtml = control.template( {
-                                fields: control.config[ id].fields,
+                                fields: control.config[ id ].fields,
                                 namePrefix: itemName,
                                 values: values
                             } );
 
-                            var html = '<div class="group-item"><div class="group-item-header"><div class="group-item-title">Title here</div><div class="group-item-toggle"></div></div><div class="group-fields-inner">' + fieldsHtml + '<div class="group-action"><a href="#" class="group-item-remove">Remove</a></div></div></div>';
+                            var html = '<div class="group-item"><div class="group-item-header"><div class="group-item-title">'+WIDGET_US.group_item_title+'</div><div class="group-item-toggle"></div></div><div class="group-fields-inner">' + fieldsHtml + '<div class="group-action"><a href="#" class="group-item-remove">'+WIDGET_US.remove+'</a></div></div></div>';
                             html = $( html );
                             b.find( '.list-groups' ).append( html );
                             if ( closed ) {
                                 html.addClass( 'closed' );
                                 $( '.group-fields-inner', html).hide();
+                            }
+
+                            console.log( control.config[ id ] );
+
+                            if ( control.config[ id ].title_id ) {
+                                $( '.wu-text.fid-'+control.config[ id].title_id, html).on( 'change keyup wu_init', function(){
+                                    var v = $( this).val();
+                                    v = v.trim();
+                                    if ( ! v ) {
+                                        v = WIDGET_US.group_item_title;
+                                    }
+                                    $( '.group-item-title', html ).text( v );
+                                } );
+
+                                $( '.wu-text.fid-'+control.config[ id].title_id, html).trigger( 'wu_init' );
                             }
 
                             $document.trigger( 'widgets-ultimate-group-item-innit', [ html ] );
@@ -538,7 +553,7 @@
             var p = $( this).closest( '.object-source' );
             var id = $( this).data( 'id' );
             $( '.object-id', p ).val( id).trigger( 'change' );
-            $( '.object-label', p ).text( $( this).text() );
+            $( '.object-label', p ).val( $( this).text() );
             $( '.object-ajax-search', p ).hide();
         });
 
@@ -553,9 +568,97 @@
             e.preventDefault();
             var p = $( this).closest( '.object-source' );
             $( '.object-id', p ).val( '' ).trigger( 'change' );
-            $( '.object-label', p ).text( '' );
+            $( '.object-label', p ).val( '' );
         });
 
+        // load icons
+        var iconPicker, iconPickerCurrentEl, iconList ;
+        iconPicker = $( '#widgets-ultimate-icons-picker' );
+        $.ajax({
+            data: {
+                action: 'widget_ultimate_icons'
+            },
+            url: WIDGET_US.ajax,
+            dataType: 'json',
+            error: function( res ){
+
+            },
+            success: function( res ){
+                iconList = res;
+
+                $.each( res, function( icon_id, icon_config ){
+                    console.log( icon_id,  icon_config );
+                    $( '.media-router', iconPicker ).html( '<a href="#" data-font="'+icon_id+'" class="media-menu-item">'+icon_config.name+'</a>' );
+
+                    // anotherString = someString.replace(/cat/g, 'dog');
+
+                    var icon_html = '<ul class="attachments list-icons icon-'+icon_id+'">';
+                    $.each( icon_config.icons, function( i, icon_class ){
+                        var class_name = '';
+                        if ( icon_config.class_config ) {
+                            class_name = icon_config.class_config.replace(/__icon_name__/g, icon_class  );
+                        } else {
+                            class_name = icon_class;
+                        }
+
+                        icon_html += '<li title="'+icon_class+'" data-id="'+class_name+'"><span class="icon-wrapper"><i class="'+class_name+'"></i></span></li>';
+
+                    } );
+                    icon_html += '</ul>';
+
+                    $( '.attachments-browser', iconPicker).append( icon_html );
+
+                } );
+
+                $( '.media-router a', iconPicker).eq( 0 ).addClass( 'active' );
+            }
+        });
+
+
+
+        iconPicker.on( 'click', '.media-modal-close', function( e ) {
+            e.preventDefault();
+            iconPicker.hide();
+            iconPickerCurrentEl = null;
+        } );
+
+        iconPicker.on( 'click', '.media-modal-backdrop', function( e ) {
+            e.preventDefault();
+            iconPicker.find( '.media-modal-close').click();
+        } );
+
+        // $( "input[name*='man']" ).val( "has man in it!" );
+        iconPicker.on( 'keyup', '#icons-search-input', function( e ) {
+            var v = $( this).val();
+            $( ".list-icons li" ).hide();
+            $( ".list-icons li[data-id*='"+v+"']" ).show();
+        } );
+
+        // Open icon picker
+        $document.on( 'click', '.object-icon-picker .object-label, .object-icon-picker .icon-preview', function(){
+            iconPicker.show();
+            iconPickerCurrentEl = $( this).closest( '.object-icon-picker' );
+        } );
+
+        // Clear icon picker
+        $document.on( 'click', '.object-icon-picker .object-clear', function(){
+            iconPickerCurrentEl = $( this).closest( '.object-icon-picker' );
+            $( '.icon-preview', iconPickerCurrentEl).html( '' );
+            $( '.object-label', iconPickerCurrentEl).val( '').trigger( 'change' );
+        } );
+
+        // Pick an icon
+        iconPicker.on( 'click', '.list-icons li', function( e ) {
+            e.preventDefault();
+            var icon_html  = $( this ).find('.icon-wrapper').html();
+            var name = $( this).data( 'id' );
+            if ( iconPickerCurrentEl ) {
+                $( '.object-label', iconPickerCurrentEl ).val( name ).trigger( 'change' );
+                $( '.icon-preview', iconPickerCurrentEl).html( icon_html );
+            }
+            // Close iconPicker
+            iconPicker.find( '.media-modal-close').click();
+        } );
 
     };
 

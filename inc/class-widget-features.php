@@ -1,8 +1,8 @@
 <?php
 /**
- * Widget test
+ * Widget Features
  */
-class Widget_Ultimate_Test extends Widget_Ultimate_Widget_Base {
+class Widget_Ultimate_Features extends Widget_Ultimate_Widget_Base {
 
 
     public function __construct() {
@@ -14,10 +14,11 @@ class Widget_Ultimate_Test extends Widget_Ultimate_Widget_Base {
 
         //$control_ops = null;
         parent::__construct(
-            'widget-ultimate-test',
-            esc_html__( 'TEST: Widget Ultimate', 'widgets-ultimate' ),
+            'widget-ultimate-features',
+            esc_html__( 'Features', 'widgets-ultimate' ),
             array(
-                'description'   => esc_html__( 'This is test widget fields', 'widgets-ultimate' )
+                'classname'     => 'widget-features',
+                'description'   => esc_html__( 'DisplayFeatures', 'widgets-ultimate' )
             ),
             $control_ops
         );
@@ -29,13 +30,6 @@ class Widget_Ultimate_Test extends Widget_Ultimate_Widget_Base {
                 'type' =>'text',
                 'name' => 'title',
                 'label' => esc_html__( 'Title', 'widgets-ultimate' ),
-                'desc' => esc_html__( 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit', 'widgets-ultimate' ),
-            ),
-
-            array(
-                'type' =>'icon',
-                'name' => 'icon',
-                'label' => esc_html__( 'Icon', 'widgets-ultimate' ),
                 'desc' => esc_html__( 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit', 'widgets-ultimate' ),
             ),
 

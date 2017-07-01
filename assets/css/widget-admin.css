@@ -105,6 +105,9 @@
 .w-admin-input-wrap label {
     font-weight: bold;
 }
+.w-admin-input-wrap .wp-picker-holder {
+    display: block;
+}
 .w-admin-input-wrap .item-desc {
     font-style: italic;
     display: block;
@@ -162,4 +165,59 @@
     margin: 0px;
     max-height: 200px;
     overflow: auto;
+}
+
+.so-content  .widget-ultimate-fields{
+    margin: 0px auto;
+}
+
+.object-label-w input.readonly, .object-label-w input[readonly] {
+    background: #ffffff;
+}
+.object-icon-picker .icon-preview {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ffffff;
+    border: 1px solid #dddddd;
+}
+.object-icon-picker .icon-preview i {
+
+}
+.object-icon-picker .object-label {
+    padding-left: 40px;
+}
+
+#widgets-ultimate-icons-picker {
+    display: none;
+}
+#widgets-ultimate-icons-picker .media-modal-backdrop{
+    opacity: 0.4;
+}
+#widgets-ultimate-icons-picker .attachments-browser .media-toolbar,
+#widgets-ultimate-icons-picker .attachments-browser .attachments {
+    right: 0px;
+}
+#widgets-ultimate-icons-picker .attachments li {
+    width: 12.5%;
+    float: left;
+    text-align: center;
+    padding: 10px;
+
+}
+#widgets-ultimate-icons-picker .icon-wrapper {
+    display: block;
+    line-height: 2.5rem;
+}
+#widgets-ultimate-icons-picker .attachments li i{
+    font-size: 2rem;
+    padding: 10px;
+}
+#widgets-ultimate-icons-picker .attachments li:hover  i {
+    background: #ededed;
 }
