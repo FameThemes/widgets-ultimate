@@ -140,6 +140,13 @@ class Widget_Ultimate_Test extends Widget_Ultimate_Widget_Base {
                     ),
 
                     array(
+                        'type' =>'icon',
+                        'name' => 'icon',
+                        'label' => esc_html__( 'Icon', 'widgets-ultimate' ),
+                        'desc' => esc_html__( 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit', 'widgets-ultimate' ),
+                    ),
+
+                    array(
                         'type' =>'source',
                         'name' => 'source',
                         'label' => esc_html__( 'Source Category', 'widgets-ultimate' ),

@@ -627,11 +627,17 @@
             iconPicker.find( '.media-modal-close').click();
         } );
 
-        // $( "input[name*='man']" ).val( "has man in it!" );
+        // Search icon
         iconPicker.on( 'keyup', '#icons-search-input', function( e ) {
             var v = $( this).val();
-            $( ".list-icons li" ).hide();
-            $( ".list-icons li[data-id*='"+v+"']" ).show();
+            v = v.trim();
+            if ( v ) {
+                $( ".list-icons li" ).hide();
+                $( ".list-icons li[data-id*='"+v+"']" ).show();
+            } else {
+                $( ".list-icons li" ).show();
+            }
+
         } );
 
         // Open icon picker
