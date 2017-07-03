@@ -32,6 +32,44 @@ class Widget_Ultimate_Test extends Widget_Ultimate_Widget_Base {
                 'desc' => esc_html__( 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit', 'widgets-ultimate' ),
             ),
 
+
+            array(
+                'type' =>'select',
+                'name' => 'c1',
+                'default' => '4',
+                'label' => esc_html__( 'Select Conditional', 'widgets-ultimate' ),
+                'desc' => esc_html__( 'Type "sa" in title filed', 'widgets-ultimate' ),
+                'options' => array(
+                    '2'   => 2,
+                    'icon'   => 'icon',
+                    '4'   => 4,
+                    '5'   => 5,
+                    '6'   => 6,
+                ),
+                'required' => array(
+                    'when' => 'title' ,
+                    'is' => 'sa'
+                )
+            ),
+
+            array(
+                'type' =>'icon',
+                'name' => 'icon_2',
+                'label' => esc_html__( 'Icon 2', 'widgets-ultimate' ),
+                'desc' => esc_html__( 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit', 'widgets-ultimate' ),
+                'required' => array(
+                    array(
+                        'when' => 'title' ,
+                        'is' => 'sa'
+                    ),
+                    array(
+                        'when' => 'c1' ,
+                        'is' => 'icon'
+                    )
+
+                )
+            ),
+
             array(
                 'type' =>'icon',
                 'name' => 'icon',
@@ -139,12 +177,6 @@ class Widget_Ultimate_Test extends Widget_Ultimate_Widget_Base {
                         'desc' => esc_html__( 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit', 'widgets-ultimate' ),
                     ),
 
-                    array(
-                        'type' =>'icon',
-                        'name' => 'icon',
-                        'label' => esc_html__( 'Icon', 'widgets-ultimate' ),
-                        'desc' => esc_html__( 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit', 'widgets-ultimate' ),
-                    ),
 
                     array(
                         'type' =>'source',

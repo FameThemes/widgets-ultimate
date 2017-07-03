@@ -145,6 +145,11 @@
             } ) );
 
 
+            $( '[visibly]', control.$el ).Visibly( {
+                clearOnHide: true
+            } );
+
+
             if ( $( '.bundle-groups', control.$el ).length > 0 ) {
                 $( '.bundle-groups', control.$el).each( function(){
                     var b = $( this );
@@ -195,6 +200,10 @@
 
                                 $( '.wu-text.fid-'+control.config[ id].title_id, html).trigger( 'wu_init' );
                             }
+
+                            $('[visibly]', html ).Visibly({
+                                clearOnHide: true
+                            });
 
                             $document.trigger( 'widgets-ultimate-group-item-innit', [ html ] );
                         },

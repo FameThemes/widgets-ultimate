@@ -57,7 +57,8 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         wp_enqueue_script( 'jquery-ui-sortable' );
         global $Widget_Ultimate;
 
-        wp_register_script( 'widget-ultimate-widget-admin', $Widget_Ultimate->get('url').'assets/js/widget-admin.js', array( 'jquery'), false, true );
+        wp_register_script( 'jquery-visibly', $Widget_Ultimate->get('url').'assets/js/jquery-visibly.js', array( 'jquery'), false, true );
+        wp_register_script( 'widget-ultimate-widget-admin', $Widget_Ultimate->get('url').'assets/js/widget-admin.js', array( 'jquery', 'jquery-visibly' ), false, true );
         wp_register_style( 'widget-ultimate-widget-admin', $Widget_Ultimate->get('url').'assets/css/widget-admin.css' );
         wp_register_style( 'font-awesome', $Widget_Ultimate->get('url').'assets/font-awesome/css/font-awesome.css' );
         if ( defined( 'ELEMENTOR_VERSION' ) ) {
@@ -109,9 +110,14 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     }
 
                     value = data.values[ key ];
+
+                    var visibly = '';
+                    if ( item.cond ) {
+                        visibly = item.cond.replace(/__id__/g, elementIdPrefix+'-' );
+                    }
                 #>
                 <# switch( item.type ){ case 'select':  #>
-                    <div class="w-admin-input-wrap">
+                    <div class="w-admin-input-wrap" <# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                         <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                         <# if ( item.desc  ){  #>
                             <div class="item-desc">{{{ item.desc }}}</div>
@@ -125,7 +131,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'textarea': #>
-                        <div class="w-admin-input-wrap">
+                        <div class="w-admin-input-wrap" <# if( visibly ) { #> visibly ="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -135,7 +141,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'checkbox': #>
-                        <div class="w-admin-input-wrap">
+                        <div class="w-admin-input-wrap"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <input id="{{ elementIdPrefix }}-{{ item.name }}" <# if ( value == "on" ) { #>checked="checked"<# } #> name="{{ name }}" type="checkbox" value="on">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
 
@@ -146,7 +152,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'editor': #>
-                        <div class="w-admin-input-wrap">
+                        <div class="w-admin-input-wrap"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -156,7 +162,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'source': source = JSON.stringify( item.source ); if( ! value ) { value = {}; }   #>
-                        <div class="w-admin-input-wrap object-source "  data-source="{{ source }}">
+                        <div class="w-admin-input-wrap object-source "  data-source="{{ source }}"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -174,7 +180,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'image': case 'video': case 'file': #>
-                        <div class="w-admin-input-wrap">
+                        <div class="w-admin-input-wrap"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -193,7 +199,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'color': #>
-                        <div class="w-admin-input-wrap">
+                        <div class="w-admin-input-wrap"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -206,7 +212,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'icon': #>
-                        <div class="w-admin-input-wrap object-icon" >
+                        <div class="w-admin-input-wrap object-icon" <# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -220,7 +226,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'group': #>
-                        <div class="w-admin-input-wrap bundle-groups" data-name="{{ name }}" data-id="{{ item.name }}">
+                        <div class="w-admin-input-wrap bundle-groups" data-name="{{ name }}" data-id="{{ item.name }}"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <# if ( item.label  ){  #>
                             <label for="group-label">{{{ item.label }}}</label>
                             <# } #>
@@ -233,7 +239,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
                     <?php do_action( 'widget-ultimate-more-fields' ); ?>
                     <# default:  #>
-                        <div class="w-admin-input-wrap">
+                        <div class="w-admin-input-wrap"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -357,6 +363,8 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                 'label'     => '',
                 'name'      => '',
                 'type'      => '',
+                'required'  => '',
+                'cond'      => '',
                 'default'   => null,
             ) );
 
@@ -388,11 +396,42 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     break;
             }
 
+            if ( ! $field['cond'] ) {
+                if ( is_array( $field['required'] ) ) {
+                    $field['cond'] = $this->setup_conditional( $field['required'] );
+                }
+            }
+
             if ( $field['name'] ) {
                 $setup_fields[ $field['name'] ] = $field;
             }
         }
         return $setup_fields;
+    }
+
+    function setup_conditional( $required ){
+        if ( ! $required || ! is_array( $required ) ) {
+            return false;
+        }
+
+        if ( isset( $required['when'] ) && isset( $required['is'] ) ) {
+            if ( is_array( $required['is'] ) ) {
+                $required['is'] = join( ',', $required['is'] );
+            }
+            $cond = sprintf( '__id__%1$s:%2$s',  $required['when'], $required['is'] );
+        } else {
+            $cond = array();
+            foreach ( $required as $r ) {
+                if ( isset( $r['when'] ) && isset( $r['is'] ) ) {
+                    if ( is_array( $r['is'] ) ) {
+                        $r['is'] = join(',', $r['is']);
+                    }
+                    $cond[] = sprintf('__id__%1$s:%2$s', $r['when'], $r['is']);
+                }
+            }
+            $cond = join( ';', $cond );
+        }
+        return $cond;
     }
 
 
