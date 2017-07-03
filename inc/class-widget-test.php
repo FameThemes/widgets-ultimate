@@ -29,7 +29,7 @@ class Widget_Ultimate_Test extends Widget_Ultimate_Widget_Base {
                 'type' =>'text',
                 'name' => 'title',
                 'label' => esc_html__( 'Title', 'widgets-ultimate' ),
-                'desc' => esc_html__( 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit', 'widgets-ultimate' ),
+                'desc' => esc_html__( 'Type "sa", Lorem ipsum dolor sit amet, consectetuer adipiscing elit', 'widgets-ultimate' ),
             ),
 
 
@@ -38,7 +38,7 @@ class Widget_Ultimate_Test extends Widget_Ultimate_Widget_Base {
                 'name' => 'c1',
                 'default' => '4',
                 'label' => esc_html__( 'Select Conditional', 'widgets-ultimate' ),
-                'desc' => esc_html__( 'Type "sa" in title filed', 'widgets-ultimate' ),
+                'desc' => esc_html__( 'Select "icon"', 'widgets-ultimate' ),
                 'options' => array(
                     '2'   => 2,
                     'icon'   => 'icon',
@@ -56,7 +56,7 @@ class Widget_Ultimate_Test extends Widget_Ultimate_Widget_Base {
                 'type' =>'icon',
                 'name' => 'icon_2',
                 'label' => esc_html__( 'Icon 2', 'widgets-ultimate' ),
-                'desc' => esc_html__( 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit', 'widgets-ultimate' ),
+                'desc' => esc_html__( 'This field only show when title as "sa", select as "icon" ', 'widgets-ultimate' ),
                 'required' => array(
                     array(
                         'when' => 'title' ,

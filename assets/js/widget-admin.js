@@ -145,9 +145,7 @@
             } ) );
 
 
-            $( '[visibly]', control.$el ).Visibly( {
-                clearOnHide: true
-            } );
+            $( '[visibly]', control.$el ).Visibly( );
 
 
             if ( $( '.bundle-groups', control.$el ).length > 0 ) {
@@ -201,9 +199,7 @@
                                 $( '.wu-text.fid-'+control.config[ id].title_id, html).trigger( 'wu_init' );
                             }
 
-                            $('[visibly]', html ).Visibly({
-                                clearOnHide: true
-                            });
+                            $('[visibly]', html ).Visibly();
 
                             $document.trigger( 'widgets-ultimate-group-item-innit', [ html ] );
                         },
@@ -318,7 +314,7 @@
 
             var url = this.getThumb();
             var id = this.getID();
-            $( '.media-item-preview', this.preview ).css( 'background-image', 'url("'+url+'")' );
+            $( '.media-item-preview', this.preview ).html(  '<img src="'+url+'" alt="">' );
             $( '.attachment-id', this.preview ).val( id ).trigger( 'change' );
             this.preview.addClass( 'attachment-added' );
 
@@ -340,19 +336,15 @@
             if ( typeof attachment !== "undefined" ) {
                 this.attachment = attachment;
             }
+            var url = attachment.url;
+            var basename = url.replace(/^.*[\\\/]/, '');
 
-            var mime = this.attachment.mime;
-            if ( mime.indexOf( 'image' ) > -1 ) {
-                this.insertImage();
-            } else if ( mime.indexOf( 'video' ) > -1 ) {
-                this.insertVideo();
-            } else {
-                var id = this.getID();
-                var icon = this.attachment.icon;
-                $( '.media-item-preview', this.preview ).html( '<img scr="'+icon+'" alt="">' );
-                $( '.attachment-id', this.preview ).val( id ).trigger( 'change' );
-                this.preview.addClass( 'attachment-added' );
-            }
+            $( '.media-item-preview', this.preview ).html( '<a href="'+url+'" target="_blank">'+basename+'</a>' );
+            $( '.attachment-id', this.preview ).val( this.getID() ).trigger( 'change' );
+            this.preview.addClass( 'attachment-added' );
+
+
+
         },
         remove: function( $el ){
             if ( typeof $el !== "undefined" ) {

@@ -60,10 +60,26 @@
 
 .attachment-added .media-item-preview {
     border: 0px none;
+
+}
+.attachment-added .media-item-preview img {
+    margin: 0 auto;
+    max-width: 100%;
+    height: auto;
+}
+.attachment-added.widget-image-input {
+    display: inline-block;
+}
+.attachment-added.widget-image-input .media-item-preview {
+    background: #F5F5F5;
+    padding: 10px;
+}
+.widget-attachment-input.widget-file-input.attachment-added .media-item-preview{
+    background: #F5F5F5;
+    padding: 10px;
+    text-align: left;
 }
 .media-item-preview {
-    border: 1px dashed #CCCCCC;
-    min-height: 150px;
     display: block;
     margin-bottom: 15px;
     webkit-background-size: cover;

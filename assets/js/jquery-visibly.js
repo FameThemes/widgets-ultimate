@@ -47,8 +47,6 @@
                 //Bind keyup and change events, keyup is used because if the next tab item is made visible it would not be tabbed to using change or blur
                 var vis = $('#' + v2.split(split)[0]);
 
-                console.log( vis );
-
                 if (vis.length == 0) vis = $('INPUT[name="' + v2.split(split)[0] + '"]');
                 vis.bind("keyup change click", function() {
                     //Parent field has changed! Check if should be made visible

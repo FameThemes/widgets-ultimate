@@ -163,7 +163,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
 
                     <# case 'source': source = JSON.stringify( item.source ); if( ! value ) { value = {}; }   #>
                         <div class="w-admin-input-wrap object-source "  data-source="{{ source }}"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
-                            <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
+                            <label for="{{ elementIdPrefix }}-{{ item.name }}-label">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
                             <# } #>
@@ -172,22 +172,31 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                                 <span class="object-clear"><span class="dashicons dashicons-no-alt"></span></span>
                             </div>
                             <div class="object-ajax-search">
-                                <input class="widefat object-ajax-input" type="text" placeholder="<?php esc_attr_e( 'Type keyword...', 'widgets-ultimate' ); ?>" id="{{ elementIdPrefix }}-{{ item.name }}">
-                                <input class="object-id" type="hidden" name="{{ name }}"  value="{{ value.id }}">
+                                <input class="widefat object-ajax-input" type="text" id="{{ elementIdPrefix }}-{{ item.name }}-label" placeholder="<?php esc_attr_e( 'Type keyword...', 'widgets-ultimate' ); ?>">
+                                <input class="object-id" type="hidden" name="{{ name }}" id="{{ elementIdPrefix }}-{{ item.name }}"  value="{{ value.id }}">
                                 <ul class="object-results"></ul>
                             </div>
                         </div>
                     <# break;  #>
 
                     <# case 'image': case 'video': case 'file': #>
+                        <#
+                            var c = '', preview = '';
+                            if ( value ) {
+                                if ( value.preview ) {
+                                    c = 'attachment-added';
+                                }
+                            }
+
+                            #>
                         <div class="w-admin-input-wrap"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
                             <# } #>
-                            <div class="widget-attachment-input widget-{{ item.type }}-input" data-type="{{ item.type }}">
-                                <input class="widefat attachment-id" type="hidden" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value }}">
-                                <div class="media-item-preview"></div>
+                            <div class="widget-attachment-input widget-{{ item.type }}-input {{ c }}" data-type="{{ item.type }}">
+                                <input class="widefat attachment-id" type="hidden" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value.id }}">
+                                <div class="media-item-preview">{{{ value.preview }}}</div>
                                 <p class="media-widget-buttons">
                                     <button type="button" class="button remove-media"><?php esc_html_e( 'Remove', 'widgets-ultimate' ); ?></button>
                                     <button type="button" class="button change-media"><?php esc_html_e( 'Replace', 'widgets-ultimate' ); ?></button>
@@ -454,6 +463,42 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         foreach ( $values as $key => $value ) {
             if ( isset( $fields[ $key ] ) ) {
                 switch ( $fields[ $key ]['type']  ) {
+                    case 'image':
+                            $src = wp_get_attachment_image_src( $value, 'thumbnail' );
+                            $values[ $key ] = array();
+                            if (  $src ) {
+                                $values[ $key ] = array(
+                                    'id' => $value,
+                                    'preview' => '<img src="'.esc_url( $src[0] ).'" alt="">'
+                                );
+                            }
+                        break;
+
+                    case 'video':
+                        $src = wp_get_attachment_url( $value );
+                        $values[ $key ] = array();
+
+                        if (  $src ) {
+                            $mime = get_post_mime_type( $value );
+                            $preview = '<video width="100%" height="" controls><source src="'.esc_url( $src ).'" type="'.esc_attr( $mime ).'">Your browser does not support the video tag.</video>';
+                            $values[ $key ] = array(
+                                'id' => $value,
+                                'preview' => $preview
+                            );
+                        }
+                        break;
+                    case 'file':
+                        $src = wp_get_attachment_url( $value );
+                        $values[ $key ] = array();
+
+                        if (  $src ) {
+                            $preview = '<a href="'.esc_url( $src ).'" target="_blank">'.basename( $src ).'</a>';
+                            $values[ $key ] = array(
+                                'id' => $value,
+                                'preview' => $preview
+                            );
+                        }
+                        break;
                     case 'source':
                         if ( $fields[ $key ]['source']['tax'] != '' ) {
                             $t = get_term( $value, $fields[ $key ]['source']['tax'], ARRAY_A );
