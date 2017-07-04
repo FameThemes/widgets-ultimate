@@ -46,8 +46,9 @@
     var widgetEditor = {
         init: function( $wrapper ){
             $( 'textarea.editor', $wrapper).each( function(){
+                var textarea = $( this );
                 var restoreTextMode = false;
-                var id = $( this).attr( 'id' );
+                var id = textarea.attr( 'id' );
                 // Abort building if the textarea is gone, likely due to the widget having been deleted entirely.
                 if ( ! document.getElementById( id ) ) {
                     return;
@@ -60,10 +61,21 @@
 
                 wp.editor.initialize( id, {
                     tinymce: {
-                    wpautop: true
+                        wpautop: true,
                     },
                     quicktags: true
                 });
+
+                var editor = window.tinymce.get( id );
+                if ( ! editor ) {
+                    throw new Error( 'Failed to initialize editor' );
+                }
+
+                editor.on( 'change', function( e ){
+                    textarea.val( editor.getContent()).trigger( 'change' );
+                } );
+
+
             } );
         },
 
@@ -183,8 +195,6 @@
                                 html.addClass( 'closed' );
                                 $( '.group-fields-inner', html).hide();
                             }
-
-                            console.log( control.config[ id ] );
 
                             if ( control.config[ id ].title_id ) {
                                 $( '.wu-text.fid-'+control.config[ id].title_id, html).on( 'change keyup wu_init', function(){

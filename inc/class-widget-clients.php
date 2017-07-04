@@ -2,7 +2,7 @@
 /**
  * Widget Features
  */
-class Widget_Ultimate_Features extends Widget_Ultimate_Widget_Base {
+class Widget_Ultimate_Clients extends Widget_Ultimate_Widget_Base {
 
 
     public function __construct() {
@@ -14,11 +14,11 @@ class Widget_Ultimate_Features extends Widget_Ultimate_Widget_Base {
 
         //$control_ops = null;
         parent::__construct(
-            'widget-ultimate-features',
-            esc_html__( 'Features', 'widgets-ultimate' ),
+            'widget-ultimate-clients',
+            esc_html__( 'Clients', 'widgets-ultimate' ),
             array(
-                'classname'     => 'widget-features',
-                'description'   => esc_html__( 'Display Features', 'widgets-ultimate' )
+                'classname'     => 'widget-clients',
+                'description'   => esc_html__( 'Display clients', 'widgets-ultimate' )
             ),
             $control_ops
         );
@@ -46,8 +46,8 @@ class Widget_Ultimate_Features extends Widget_Ultimate_Widget_Base {
 
             array(
                 'type' =>'group',
-                'name' => 'features',
-                'label'    => esc_html__( 'Features', 'widgets-ultimate' ),
+                'name' => 'clients',
+                'label'    => esc_html__( 'Clients', 'widgets-ultimate' ),
                 'title_id' => 'title', // support text field only
                 'fields' => array(
                     array(
@@ -102,7 +102,7 @@ class Widget_Ultimate_Features extends Widget_Ultimate_Widget_Base {
                         'name' => 'desc',
                         'label' => esc_html__( 'Description', 'widgets-ultimate' ),
                     ),
-
+                    
                 )
             )
 

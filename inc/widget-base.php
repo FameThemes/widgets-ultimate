@@ -111,6 +111,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
 
                     value = data.values[ key ];
 
+
                     var visibly = '';
                     if ( item.cond ) {
                         visibly = item.cond.replace(/__id__/g, elementIdPrefix+'-' );
@@ -122,11 +123,13 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                         <# if ( item.desc  ){  #>
                             <div class="item-desc">{{{ item.desc }}}</div>
                         <# } #>
-                        <select id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}">
-                            <# _.each( item.options, function( v, k ){  #>
-                                <option <# if ( k == value ) { #>selected="selected"<# } #> value="{{ k }}">{{ v }}</option>
-                            <# }); // end each #>
-                        </select>
+                        <div class="select-wrapper">
+                            <select id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}">
+                                <# _.each( item.options, function( v, k ){  #>
+                                    <option <# if ( k == value ) { #>selected="selected"<# } #> value="{{ k }}">{{ v }}</option>
+                                <# }); // end each #>
+                            </select>
+                        </div>
                     </div>
                     <# break;  #>
 
@@ -141,7 +144,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'checkbox': #>
-                        <div class="w-admin-input-wrap"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
+                        <div class="w-admin-input-wrap input-wrap-{{ item.type }}"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <input id="{{ elementIdPrefix }}-{{ item.name }}" <# if ( value == "on" ) { #>checked="checked"<# } #> name="{{ name }}" type="checkbox" value="on">
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
 
@@ -182,6 +185,9 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# case 'image': case 'video': case 'file': #>
                         <#
                             var c = '', preview = '';
+                            if ( typeof value !== 'object' ) {
+                                value = {};
+                            }
                             if ( value ) {
                                 if ( value.preview ) {
                                     c = 'attachment-added';
@@ -465,7 +471,10 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                 switch ( $fields[ $key ]['type']  ) {
                     case 'image':
                             $src = wp_get_attachment_image_src( $value, 'thumbnail' );
-                            $values[ $key ] = array();
+                            $values[ $key ] = array(
+                                'id' => '',
+                                'preview' => ''
+                            );
                             if (  $src ) {
                                 $values[ $key ] = array(
                                     'id' => $value,
@@ -476,7 +485,10 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
 
                     case 'video':
                         $src = wp_get_attachment_url( $value );
-                        $values[ $key ] = array();
+                        $values[ $key ] = array(
+                            'id' => '',
+                            'preview' => ''
+                        );
 
                         if (  $src ) {
                             $mime = get_post_mime_type( $value );
@@ -489,7 +501,10 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                         break;
                     case 'file':
                         $src = wp_get_attachment_url( $value );
-                        $values[ $key ] = array();
+                        $values[ $key ] = array(
+                            'id' => '',
+                            'preview' => ''
+                        );
 
                         if (  $src ) {
                             $preview = '<a href="'.esc_url( $src ).'" target="_blank">'.basename( $src ).'</a>';
@@ -522,7 +537,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                         break;
 
                     case 'group':
-                        foreach ( $value as $_k => $_v ) {
+                        foreach ( ( array ) $value as $_k => $_v ) {
                             $values[ $key ][ $_k ] = $this->setup_values( $value[ $_k ], $fields[ $key ]['fields'] );
                         }
                         break;
@@ -556,26 +571,59 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         <?php
     }
 
-    public function update($new_instance, $old_instance)
-    {
-        return $new_instance;
-        /*
-        $instance = array();
-        foreach ($this->get_configs() as $field) {
-            $field = wp_parse_args($field, array(
-                'name' => '',
-            ));
+    function sanitize( $values = array(), $fields = array() ){
+        if ( ! is_array( $values ) ) {
+            return wp_kses_post( $values );
+        }
 
-            if ($field['name']) {
-                if (isset($new_instance[$field['name']])) {
-                    $instance[$field['name']] = $new_instance[$field['name']];
-                } else {
-                    $instance[$field['name']] = '';
+        foreach ( $values as $key => $value ) {
+            if ( isset( $fields[ $key ] ) ) {
+                switch ( $fields[ $key ]['type']  ) {
+                    case 'image':  case 'video': case 'file':  case 'source':
+                        $values[ $key ] = absint( $value );
+                        break;
+
+                    case 'group':
+                        foreach ( ( array ) $value as $_k => $_v ) {
+                            $values[ $key ][ $_k ] = $this->setup_values( $value[ $_k ], $fields[ $key ]['fields'] );
+                        }
+                        break;
+
+                    case 'color':
+                        $value = sanitize_hex_color_no_hash( $value );
+                        if ( $value ) {
+                            $value = '#'.$value;
+                        }
+                        $values[ $key ] = $value;
+                        break;
+                    case 'select':
+                        if ( isset( $field['options'][ $value ] ) ) {
+                            $values[ $key ] = $value;
+                        } else {
+                            $values[ $key ] = $field['default'];
+                        }
+                        break;
+                    case 'icon':
+                        $values[ $key ] = sanitize_text_field( $value );
+                        break;
+                    case 'checkbox':
+                        $values[ $key ] = ( $value ) ? 'on' : false ;
+                        break;
+                    default:
+                        $values[ $key ] = wp_kses_post( $value  );
                 }
+
             }
         }
-        return $instance;
-        */
+
+        return $values;
+    }
+
+
+    public function update($new_instance, $old_instance)
+    {
+        //return $new_instance;
+        return $this->sanitize( $new_instance );
     }
 
 }

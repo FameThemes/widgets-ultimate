@@ -54,6 +54,7 @@ final class Widget_Ultimate {
     function register_widgets(){
         register_widget( 'Widget_Ultimate_Test' );
         register_widget( 'Widget_Ultimate_Features' );
+        register_widget( 'Widget_Ultimate_Clients' );
     }
 
 
@@ -62,6 +63,7 @@ final class Widget_Ultimate {
         require_once $this->path.'inc/widget-base.php';
         require_once $this->path.'inc/class-widget-test.php';
         require_once $this->path.'inc/class-widget-features.php';
+        require_once $this->path.'inc/class-widget-clients.php';
 
         add_action( 'widgets_init', array( $this, 'register_widgets' ) );
     }
