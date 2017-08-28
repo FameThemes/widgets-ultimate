@@ -24,7 +24,7 @@ class Widget_Ultimate_Features extends Widget_Ultimate_Widget_Base {
         );
     }
 
-    function config( ){
+    function config(){
         $fields = array(
             array(
                 'type' =>'text',
@@ -34,8 +34,8 @@ class Widget_Ultimate_Features extends Widget_Ultimate_Widget_Base {
 
             array(
                 'type' =>'text',
-                'name' => 'tagline',
-                'label' => esc_html__( 'Tagline', 'widgets-ultimate' ),
+                'name' => 'subtitle',
+                'label' => esc_html__( 'Subtitle', 'widgets-ultimate' ),
             ),
 
             array(
@@ -112,23 +112,61 @@ class Widget_Ultimate_Features extends Widget_Ultimate_Widget_Base {
 
     }
 
-    public function widget( $args, $instance )
-    {
+    function the_content( $instance ){
+        extract( $instance );
 
-        if ( ! isset( $instance['__setup_data'] ) || ! $instance['__setup_data'] === false ){
-            $instance = $this->setup_instance( $instance );
-        }
+        ?>
+        <?php if ( $title ||  $subtitle || $desc ){ ?>
+            <div class="section-title-area">
+                <?php if ($subtitle != '') echo '<h5 class="section-subtitle">' . esc_html($subtitle) . '</h5>'; ?>
+                <?php if ($title != '') echo '<h2 class="section-title">' . esc_html($title) . '</h2>'; ?>
+                <?php if ( $desc ) {
+                    echo '<div class="section-desc">' . apply_filters( 'onepress_the_content', wp_kses_post( $desc ) ) . '</div>';
+                } ?>
+            </div>
+        <?php } ?>
+        <div class="section-content">
+            <div class="row">
+                <?php
+                $layout = intval( get_theme_mod( 'onepress_features_layout', 3 ) );
+                foreach ( $data as $k => $f ) {
+                    $media = '';
+                    $f =  wp_parse_args( $f, array(
+                        'icon_type' => 'icon',
+                        'icon' => 'gg',
+                        'image' => '',
+                        'link' => '',
+                        'title' => '',
+                        'desc' => '',
+                    ) );
+                    if ( $f['icon_type'] == 'image' && $f['image'] ){
+                        $url = onepress_get_media_url( $f['image'] );
+                        if ( $url ) {
+                            $media = '<span class="icon-image"><img src="'.esc_url( $url ).'" alt=""></span>';
+                        }
+                    } else if ( $f['icon'] ) {
+                        $f['icon'] = trim( $f['icon'] );
+                        $media = '<span class="fa-stack fa-5x"><i class="fa fa-circle fa-stack-2x icon-background-default"></i> <i class="feature-icon fa '.esc_attr( $f['icon'] ).' fa-stack-1x"></i></span>';
+                    }
 
-        $title = $instance['title'];
-        unset($instance['title']);
+                    ?>
+                    <div class="feature-item col-lg-<?php echo esc_attr( $layout ); ?> col-sm-6 wow slideInUp">
+                        <div class="feature-media">
+                            <?php if ( $f['link'] ) { ?><a href="<?php echo esc_url( $f['link']  ); ?>"><?php } ?>
+                                <?php echo $media; ?>
+                                <?php if ( $f['link'] )  { ?></a><?php } ?>
+                        </div>
+                        <h4><?php if ( $f['link'] ) { ?><a href="<?php echo esc_url( $f['link']  ); ?>"><?php } ?><?php echo esc_html( $f['title'] ); ?><?php if ( $f['link'] )  { ?></a><?php } ?></h4>
+                        <div class="feature-item-content"><?php echo apply_filters( 'the_content', $f['desc'] ); ?></div>
+                    </div>
+                    <?php
+                }// end loop featues
 
-
-        echo $args['before_widget'];
-        $title = apply_filters( 'widget_title', $title );
-
-        echo rand( );
-
-        echo $args['after_widget'];
+                ?>
+            </div>
+        </div>
+        <?php
     }
+
 
 }

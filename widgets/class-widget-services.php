@@ -1,9 +1,6 @@
 <?php
-/**
- * Widget Features
- */
-class Widget_Ultimate_Clients extends Widget_Ultimate_Widget_Base {
 
+class Widget_Ultimate_Services extends Widget_Ultimate_Widget_Base {
 
     public function __construct() {
 
@@ -14,11 +11,11 @@ class Widget_Ultimate_Clients extends Widget_Ultimate_Widget_Base {
 
         //$control_ops = null;
         parent::__construct(
-            'widget-ultimate-clients',
-            esc_html__( 'Clients', 'widgets-ultimate' ),
+            'widget-ultimate-services',
+            esc_html__( 'Services', 'widgets-ultimate' ),
             array(
-                'classname'     => 'widget-clients',
-                'description'   => esc_html__( 'Display clients', 'widgets-ultimate' )
+                'classname'     => 'widget-services',
+                'description'   => esc_html__( 'Display services', 'widgets-ultimate' )
             ),
             $control_ops
         );
@@ -46,8 +43,8 @@ class Widget_Ultimate_Clients extends Widget_Ultimate_Widget_Base {
 
             array(
                 'type' =>'group',
-                'name' => 'clients',
-                'label'    => esc_html__( 'Clients', 'widgets-ultimate' ),
+                'name' => 'items',
+                'label'    => esc_html__( 'Items', 'widgets-ultimate' ),
                 'title_id' => 'title', // support text field only
                 'fields' => array(
                     array(
@@ -99,8 +96,26 @@ class Widget_Ultimate_Clients extends Widget_Ultimate_Widget_Base {
 
                     array(
                         'type' =>'editor',
-                        'name' => 'desc',
-                        'label' => esc_html__( 'Description', 'widgets-ultimate' ),
+                        'name' => 'content',
+                        'label' => esc_html__( 'Content', 'widgets-ultimate' ),
+                    ),
+
+                    array(
+                        'type' =>'checkbox',
+                        'name' => 'hide_title',
+                        'label' => esc_html__( 'Hide item title.', 'widgets-ultimate' ),
+                    ),
+
+                    array(
+                        'type' =>'text',
+                        'name' => 'url',
+                        'label' => esc_html__( 'URL', 'widgets-ultimate' ),
+                    ),
+
+                    array(
+                        'type' =>'checkbox',
+                        'name' => 'link',
+                        'label' => esc_html__( 'Open link in new window', 'widgets-ultimate' ),
                     ),
                     
                 )
@@ -112,23 +127,5 @@ class Widget_Ultimate_Clients extends Widget_Ultimate_Widget_Base {
 
     }
 
-    public function widget( $args, $instance )
-    {
-
-        if ( ! isset( $instance['__setup_data'] ) || ! $instance['__setup_data'] === false ){
-            $instance = $this->setup_instance( $instance );
-        }
-
-        $title = $instance['title'];
-        unset($instance['title']);
-
-
-        echo $args['before_widget'];
-        $title = apply_filters( 'widget_title', $title );
-
-        echo rand( );
-
-        echo $args['after_widget'];
-    }
 
 }

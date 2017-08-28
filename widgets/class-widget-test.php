@@ -272,23 +272,5 @@ class Widget_Ultimate_Test extends Widget_Ultimate_Widget_Base {
 
     }
 
-    public function widget( $args, $instance )
-    {
-
-        if ( ! isset( $instance['__setup_data'] ) || ! $instance['__setup_data'] === false ){
-            $instance = $this->setup_instance( $instance );
-        }
-
-        $title = $instance['title'];
-        unset($instance['title']);
-
-
-        echo $args['before_widget'];
-        $title = apply_filters( 'widget_title', $title );
-
-        echo rand( );
-
-        echo $args['after_widget'];
-    }
 
 }

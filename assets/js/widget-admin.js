@@ -156,6 +156,10 @@
                 values: control.savValues
             } ) );
 
+            control.triggerChange = function(){
+                $( '.wu_input_base', control.$el).val( new Date().getTime()).trigger( 'change' );
+            };
+
 
             $( '[visibly]', control.$el ).Visibly( );
 
@@ -165,12 +169,30 @@
                     var b = $( this );
                     var id = b.data( 'id' );
                     var name = b.data( 'name' );
+                    var limit = 0; // mean unlimited
+                    try {
+                        limit = Math.abs( parseInt( control.config[ id ].limit ) );
+                        if ( control.config[ id ].limit_msg ) {
+                            b.append( '<div class="limit_msg">'+control.config[ id ].limit_msg+'</div>' );
+                            $( '.limit_msg', b ).hide();
+                        }
+                    } catch  ( e ) {
+                        limit = 0;
+                    }
+
                     var groupControl = {
                         id: id,
                         init: function(){
 
                         },
                         newItem: function( index, values, closed ){
+
+                            // Check items
+                            var n = b.find( '.list-groups .group-item' ).length || 0;
+                            if ( limit == 0 || n >= limit ) {
+                                $( '.limit_msg', b ).show();
+                            }
+
                             if ( typeof index === "undefined" ) {
                                 index = new Date().getTime();
                             }
@@ -193,12 +215,30 @@
                             b.find( '.list-groups' ).append( html );
                             if ( closed ) {
                                 html.addClass( 'closed' );
-                                $( '.group-fields-inner', html).hide();
+                                $( '.group-fields-inner', html ).hide();
                             }
 
                             if ( control.config[ id ].title_id ) {
-                                $( '.wu-text.fid-'+control.config[ id].title_id, html).on( 'change keyup wu_init', function(){
-                                    var v = $( this).val();
+                                var fg_id = control.config[ id ].title_id;
+                                //console.log(  control.config[ id ].fields[ fg_id ] );
+                                var fg = control.config[ id ].fields[ fg_id ];
+                                $( '.fid-'+fg_id, html).on( 'change keyup wu_init wu_data_changed', function(){
+                                    var input = $( this);
+                                    var v;
+                                    // Get label Depended on each type
+                                    switch ( fg.type ) {
+                                        case 'source':
+                                            var p = input.closest('.group-fields-inner');
+                                            v = $( '.object-label', p ).val();
+                                            break;
+                                        case 'select': case 'dropdown':
+                                            var _v = input.val();
+                                            v = $( 'option[value="'+_v+'"]', input ).html() || '';
+                                            break;
+                                        default:
+                                            v = input.val();
+                                    }
+
                                     v = v.trim();
                                     if ( ! v ) {
                                         v = WIDGET_US.group_item_title;
@@ -206,12 +246,19 @@
                                     $( '.group-item-title', html ).text( v );
                                 } );
 
-                                $( '.wu-text.fid-'+control.config[ id].title_id, html).trigger( 'wu_init' );
+                                $( '.fid-'+fg_id, html).trigger( 'wu_init' );
                             }
 
                             $('[visibly]', html ).Visibly();
 
                             $document.trigger( 'widgets-ultimate-group-item-innit', [ html ] );
+
+                            //Check limit item
+                            var n = b.find( '.list-groups .group-item' ).length || 0;
+                            if ( limit != 0 && n >= limit ) {
+                                b.find( '.new-item' ).hide();
+                                $( '.limit_msg', b ).show();
+                            }
                         },
                         remove: function( e ){
                             e.preventDefault();
@@ -224,6 +271,15 @@
                                     g.slideUp( 300, function(){
                                         widgetEditor.remove( g );
                                         g.remove();
+
+                                        //Check limit item
+                                        var n = b.find( '.list-groups .group-item' ).length || 0;
+                                        if ( limit != 0 && n < limit ) {
+                                            b.find( '.new-item' ).show();
+                                            $( '.limit_msg', b ).hide();
+                                            control.triggerChange();
+                                        }
+
                                     } );
                                 }
                             );
@@ -244,6 +300,7 @@
                             e.preventDefault();
                             var index = new Date().getTime();
                             groupControl.newItem( index, {} );
+
                         }
                     };
 
@@ -270,10 +327,6 @@
 
             control.$el.on( 'change keyup', 'input:not(.wu_input_base), select, textarea', function(){
                 $( '.wu_input_base', control.$el).val( new Date().getTime()).trigger( 'change' );
-                //var widget_inside = $( this).closest( '.widget-inside' );
-                //if ( widget_inside ) {
-                    //$( '.widget-control-save', widget_inside).click();
-                //}
             } );
 
 
@@ -353,8 +406,6 @@
             $( '.attachment-id', this.preview ).val( this.getID() ).trigger( 'change' );
             this.preview.addClass( 'attachment-added' );
 
-
-
         },
         remove: function( $el ){
             if ( typeof $el !== "undefined" ) {
@@ -364,6 +415,7 @@
             $( '.media-item-preview', this.preview ).removeAttr( 'style').html( '' );
             $( '.attachment-id', this.preview ).val( '' ).trigger( 'change' );
             this.preview.removeClass( 'attachment-added' );
+            control.triggerChange();
         }
 
     };
@@ -558,14 +610,14 @@
             }
         };
 
-
         $document.on( 'click', '.object-source .object-results li', function( e ){
             e.preventDefault();
             var p = $( this).closest( '.object-source' );
             var id = $( this).data( 'id' );
-            $( '.object-id', p ).val( id).trigger( 'change' );
+            $( '.object-id', p ).val( id );
             $( '.object-label', p ).val( $( this).text() );
             $( '.object-ajax-search', p ).hide();
+            $( '.object-id', p ).trigger( 'change' );
         });
 
         $document.on( 'click', '.object-source .object-label', function( e ){
@@ -598,7 +650,7 @@
                 iconList = res;
 
                 $.each( res, function( icon_id, icon_config ){
-                    console.log( icon_id,  icon_config );
+                    //console.log( icon_id,  icon_config );
                     $( '.media-router', iconPicker ).html( '<a href="#" data-font="'+icon_id+'" class="media-menu-item">'+icon_config.name+'</a>' );
 
                     // anotherString = someString.replace(/cat/g, 'dog');
@@ -662,6 +714,7 @@
             iconPickerCurrentEl = $( this).closest( '.object-icon-picker' );
             $( '.icon-preview', iconPickerCurrentEl).html( '' );
             $( '.object-label', iconPickerCurrentEl).val( '').trigger( 'change' );
+            control.triggerChange();
         } );
 
         // Pick an icon
@@ -675,6 +728,7 @@
             }
             // Close iconPicker
             iconPicker.find( '.media-modal-close').click();
+
         } );
 
     };

@@ -76,8 +76,8 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         wp_localize_script( 'widget-ultimate-widget-admin' , get_class( $this ), $this->get_configs() );
         wp_localize_script( 'widget-ultimate-widget-admin' , 'WIDGET_US', array(
             'ajax' => admin_url( 'admin-ajax.php' ),
-            'group_item_title' => esc_html__( 'Untitled', 'widgets-ultimate' ),
-            'remove' => esc_html__( 'Remove', 'widgets-ultimate' ),
+            'group_item_title' => Widget_Ultimate::l10n('group_item_title'),
+            'remove' => Widget_Ultimate::l10n( 'remove' ),
         ) );
 
     }
@@ -124,7 +124,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                             <div class="item-desc">{{{ item.desc }}}</div>
                         <# } #>
                         <div class="select-wrapper">
-                            <select id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}">
+                            <select class="fid-{{ item.name }}" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}">
                                 <# _.each( item.options, function( v, k ){  #>
                                     <option <# if ( k == value ) { #>selected="selected"<# } #> value="{{ k }}">{{ v }}</option>
                                 <# }); // end each #>
@@ -165,7 +165,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'source': source = JSON.stringify( item.source ); if( ! value ) { value = {}; }   #>
-                        <div class="w-admin-input-wrap object-source "  data-source="{{ source }}"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
+                        <div class="w-admin-input-wrap object-source name-{{ item.name }}"  data-source="{{ source }}"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}-label">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -175,8 +175,8 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                                 <span class="object-clear"><span class="dashicons dashicons-no-alt"></span></span>
                             </div>
                             <div class="object-ajax-search">
-                                <input class="widefat object-ajax-input" type="text" id="{{ elementIdPrefix }}-{{ item.name }}-label" placeholder="<?php esc_attr_e( 'Type keyword...', 'widgets-ultimate' ); ?>">
-                                <input class="object-id" type="hidden" name="{{ name }}" id="{{ elementIdPrefix }}-{{ item.name }}"  value="{{ value.id }}">
+                                <input class="widefat object-ajax-input" type="text" id="{{ elementIdPrefix }}-{{ item.name }}-label" placeholder="<?php echo esc_attr( Widget_Ultimate::l10n('type-keyword') ); ?>">
+                                <input class="object-id fid-{{ item.name }}" type="hidden" name="{{ name }}" id="{{ elementIdPrefix }}-{{ item.name }}"  value="{{ value.id }}">
                                 <ul class="object-results"></ul>
                             </div>
                         </div>
@@ -195,7 +195,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                             }
 
                             #>
-                        <div class="w-admin-input-wrap"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
+                        <div class="w-admin-input-wrap name-{{ item.name }}"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -204,9 +204,9 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                                 <input class="widefat attachment-id" type="hidden" id="{{ elementIdPrefix }}-{{ item.name }}" name="{{ name }}" value="{{ value.id }}">
                                 <div class="media-item-preview">{{{ value.preview }}}</div>
                                 <p class="media-widget-buttons">
-                                    <button type="button" class="button remove-media"><?php esc_html_e( 'Remove', 'widgets-ultimate' ); ?></button>
-                                    <button type="button" class="button change-media"><?php esc_html_e( 'Replace', 'widgets-ultimate' ); ?></button>
-                                    <button type="button" class="button select-media"><?php esc_html_e( 'Add', 'widgets-ultimate' ); ?></button>
+                                    <button type="button" class="button remove-media"><?php echo Widget_Ultimate::l10n('remove'); ?></button>
+                                    <button type="button" class="button change-media"><?php echo Widget_Ultimate::l10n('replace'); ?></button>
+                                    <button type="button" class="button select-media"><?php echo Widget_Ultimate::l10n('add' ); ?></button>
                                 </p>
 
                             </div>
@@ -214,7 +214,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'color': #>
-                        <div class="w-admin-input-wrap"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
+                        <div class="w-admin-input-wrap name-{{ item.name }}"<# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -227,7 +227,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <# break;  #>
 
                     <# case 'icon': #>
-                        <div class="w-admin-input-wrap object-icon" <# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
+                        <div class="w-admin-input-wrap object-icon name-{{ item.name }}" <# if( visibly ) { #> visibly="{{ visibly }}"<# } #>>
                             <label for="{{ elementIdPrefix }}-{{ item.name }}">{{{ item.label }}}</label>
                             <# if ( item.desc  ){  #>
                                 <div class="item-desc">{{{ item.desc }}}</div>
@@ -249,7 +249,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                                 <div class="item-desc">{{{ item.desc }}}</div>
                             <# } #>
                             <div class="list-groups"></div>
-                            <a href="#" class="new-item"><?php esc_html_e( 'Add item', 'widgets-ultimate' ); ?></a>
+                            <a href="#" class="new-item"><?php echo Widget_Ultimate::l10n( 'add-item' ); ?></a>
                         </div>
                     <# break;  #>
                     <?php do_action( 'widget-ultimate-more-fields' ); ?>
@@ -269,11 +269,11 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         <script type="text/html" id="tmpl-widget-group-item">
             <div class="group-item">
                 <div class="group-item-header">
-                    <div class="group-item-title"><?php esc_html_e( 'Title here', 'widgets-ultimate' ); ?></div>
+                    <div class="group-item-title"><?php echo Widget_Ultimate::l10n('title-here'); ?></div>
                     <div class="group-item-toggle"></div>
                 </div>
                 <div class="group-fields-inner">
-                    <div class="group-action"><a href="#" class="group-item-remove"><?php esc_html_e( 'Remove', 'widgets-ultimate' ); ?></a></div>
+                    <div class="group-action"><a href="#" class="group-item-remove"><?php echo Widget_Ultimate::l10n('remove'); ?></a></div>
                 </div>
             </div>';
         </script>
@@ -287,7 +287,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     <div class="media-frame mode-select wp-core-ui hide-menu">
 
                         <div class="media-frame-title">
-                            <h1><?php esc_html_e( 'Icons', 'widgets-ultimate' ); ?><span class="dashicons dashicons-arrow-down"></span></h1>
+                            <h1><?php echo Widget_Ultimate::l10n('icons'); ?><span class="dashicons dashicons-arrow-down"></span></h1>
                         </div>
 
                         <div class="media-frame-router">
@@ -301,7 +301,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
 
                                 <div class="media-toolbar">
                                     <div class="media-toolbar-secondary">
-                                        <input placeholder="<?php esc_attr_e( 'Search-icon', 'widgets-ultimate' ); ?>" id="icons-search-input" class="search" type="search">
+                                        <input placeholder="<?php echo esc_attr( Widget_Ultimate::l10n('search-icon') ); ?>" id="icons-search-input" class="search" type="search">
                                     </div>
                                     <div class="media-toolbar-primary search-form">
 
@@ -314,7 +314,7 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                             <div class="media-toolbar">
                                 <div class="media-toolbar-secondary"></div>
                                 <div class="media-toolbar-primary search-form">
-                                    <button type="button" class="button media-button button-primary button-large media-button-select" disabled="disabled">Select</button>
+                                    <button type="button" class="button media-button button-primary button-large media-button-select" disabled="disabled"><?php echo Widget_Ultimate::l10n('select'); ?></button>
                                 </div>
                             </div>
                         </div>
@@ -358,10 +358,6 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         return $r;
     }
 
-    public function widget($args, $instance)
-    {
-        esc_html_e('function OnePress_plus_Widget_Base::widget() must be over-ridden in a sub-class.', 'widgets-ultimate');
-    }
 
     function config(){
         return array();
@@ -402,11 +398,9 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     if ( ! isset( $field['fields'] ) || ! is_array( $field['fields'] ) ) {
                         $field['fields'] = array();
                     }
-
                     if ( ! isset( $field['title_id'] ) ) {
                         $field['title_id'] = '';
                     }
-
                     $field['fields'] = $this->setup_fields( $field['fields'], $lv + 1 );
                     break;
             }
@@ -452,35 +446,99 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
 
     function get_configs()
     {
-
         if (  $this->fields ) {
             return $this->fields;
         }
-
         $this->fields = $this->setup_fields( $this->config() );
         return $this->fields;
+    }
+
+    function setup_default_values( $values = array(), $fields = array() ){
+        if ( ! is_array( $values ) ) {
+            $values = array();
+        }
+        foreach ( $fields as $f ) {
+            if ( ! isset( $values[ $f['name'] ] ) ) {
+                $values[ $f['name'] ] = $f['default'];
+            }
+            if ( $f['type'] == 'group' ) {
+                foreach( ( array ) $values[ $f['name'] ]  as $k => $v ) {
+                    $values[ $f['name'] ][ $k ] = $this->setup_default_values( $v, $f['fields'] );
+                }
+            }
+        }
+        return $values;
+    }
+
+    /**
+     * Get Image from value
+     * @param string|array $value Value to get image, can be array or image id
+     * @param string $size Image size
+     * @return string|bool
+     */
+    function get_image( $value = null, $size = 'full' ){
+        if ( ! $value ) {
+            return false;
+        }
+        if ( is_numeric( $value ) ) {
+            $src = wp_get_attachment_image_src( $value, $size );
+            if ( ! $src ) {
+                return false;
+            }
+            return $src[0];
+        } elseif( is_string( $value ) ) {
+            return $value;
+        } elseif ( is_array( $value ) ) {
+            $value = wp_parse_args( $value, array(
+                'id' => '',
+                'src' => ''
+            ) );
+            if ( $value['id'] && is_numeric( $value['id'] ) ) {
+                $src = wp_get_attachment_image_src( $value['id'], $size );
+                if ( ! $src ) {
+                    return false;
+                }
+                return $src[0];
+            }
+        }
+
+        return false;
     }
 
     function setup_values( $values = array(), $fields = array() ){
         if ( ! is_array( $values ) ) {
             return $values;
         }
+        foreach ( $fields as $f ) {
+            if ( ! isset( $values[ $f['name'] ] ) ) {
+                $values[ $f['name'] ] = $f['default'];
+            }
+        }
 
         foreach ( $values as $key => $value ) {
             if ( isset( $fields[ $key ] ) ) {
                 switch ( $fields[ $key ]['type']  ) {
                     case 'image':
+                        $src = false;
+                        if ( is_numeric( $value ) ) {
                             $src = wp_get_attachment_image_src( $value, 'thumbnail' );
-                            $values[ $key ] = array(
-                                'id' => '',
-                                'preview' => ''
-                            );
-                            if (  $src ) {
-                                $values[ $key ] = array(
-                                    'id' => $value,
-                                    'preview' => '<img src="'.esc_url( $src[0] ).'" alt="">'
-                                );
+                            if ( $src ) {
+                                $src = $src[0];
                             }
+                        } else {
+                            $src = $value;
+                        }
+
+                        $values[ $key ] = array(
+                            'id' => '',
+                            'preview' => ''
+                        );
+                        if (  $src ) {
+                            $values[ $key ] = array(
+                                'id' => $value,
+                                'preview' => '<img src="'.esc_url( $src ).'" alt="">'
+                            );
+                        }
                         break;
 
                     case 'video':
@@ -525,8 +583,9 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                                 $values[ $key ] = null;
                             }
                         } else {
+
                             $p = get_post( $value, ARRAY_A );
-                            if ( $p && get_post_type( $p ) == $fields[ $key ]['source']['post_type'] ) {
+                            if ( $p && $p['post_type'] == $fields[ $key ]['source']['post_type'] ) {
                                 $values[ $key ] = $p;
                                 $values[ $key ]['id'] = $p['ID'];
                                 $values[ $key ]['name'] = $p['post_title'];
@@ -543,6 +602,8 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                         break;
                 }
 
+            } else {
+                unset( $values[ $key ] );
             }
         }
 
@@ -552,12 +613,11 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
 
     public function form( $instance )
     {
-
         $form_id = 'wu_widget_form_'.md5( uniqid( rand(), true ) );
         $instance = $this->setup_values( $instance, $this->get_configs() );
+
         ?>
         <div id="<?php echo esc_attr( $form_id ); ?>" class="widget-ultimate-fields">
-
             <div class="bundle-widget-fields" data-values="<?php echo esc_attr( json_encode( $instance ) ); ?>" data-name="<?php echo $this->get_field_name( '__wname__' ); ?>" data-widget="<?php echo esc_attr( get_class( $this ) ); ?>">
                 <input type="hidden" class="wu_input_base" name="<?php echo $this->get_field_name( 'wu_base' ); ?>">
             </div>
@@ -582,13 +642,11 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
                     case 'image':  case 'video': case 'file':  case 'source':
                         $values[ $key ] = absint( $value );
                         break;
-
                     case 'group':
                         foreach ( ( array ) $value as $_k => $_v ) {
                             $values[ $key ][ $_k ] = $this->setup_values( $value[ $_k ], $fields[ $key ]['fields'] );
                         }
                         break;
-
                     case 'color':
                         $value = sanitize_hex_color_no_hash( $value );
                         if ( $value ) {
@@ -616,6 +674,12 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
             }
         }
 
+        foreach ( $fields as $f ) {
+            if ( ! isset( $values[ $f['name'] ] ) ) {
+                $values[ $f['name'] ] = $f['default'];
+            }
+        }
+
         return $values;
     }
 
@@ -625,5 +689,30 @@ class Widget_Ultimate_Widget_Base extends WP_Widget
         //return $new_instance;
         return $this->sanitize( $new_instance );
     }
+
+    function the_content( $instance ){
+        var_dump( $instance );
+    }
+
+    public function widget($args, $instance)
+    {
+        $instance = $this->setup_values( $instance, $this->get_configs() );
+        $title = false;
+        if ( isset( $instance['title'] ) ) {
+            $title = $instance['title'];
+
+        }
+        echo $args['before_widget'];
+
+        if ( ! empty( $title ) ) {
+            echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
+        }
+
+
+        $this->the_content( $instance );
+
+        echo $args['after_widget'];
+    }
+
 
 }
